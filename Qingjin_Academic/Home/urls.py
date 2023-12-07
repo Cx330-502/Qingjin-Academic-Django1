@@ -7,5 +7,14 @@ urlpatterns = [
     path('user/captcha', captcha, name='captcha'),
     path('user/register', user_register),
     path('user/login', user_login),
+    path('hot_paper', hot_paper),
+    path('hot_institution', hot_institution),
+    path('clear_history', clear_history),
+    path('get_history', get_history),
+    path('get_stars', get_stars),
+    path('unstar', unstar),
+    path('create_folder', create_folder),
+    path('move_star', move_star),
+    path('delete_folder', delete_folder)
 
 ]

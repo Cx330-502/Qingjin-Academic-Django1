@@ -19,7 +19,7 @@ def decrypt(data):
     return base64.b64decode(data.encode('utf-8')).decode('utf-8')
 
 
-def auth_token(token):
+def auth_token(token, is_admin):
     salt = settings.SECRET_KEY
     try:
         payload = jwt.decode(token, salt, algorithms=['HS256'], verify=True)
@@ -29,8 +29,20 @@ def auth_token(token):
     except Exception as e:
         print(e)
         return False
-    if User.objects.filter(id=payload['id']).exists():
-        return User.objects.get(id=payload['id'])
+    if payload['type'] == 'user':
+        if is_admin:
+            return False
+        if User.objects.filter(id=payload['id']).exists():
+            return User.objects.get(id=payload['id'])
+        else:
+            return False
+    elif payload['type'] == 'admin':
+        if not is_admin:
+            return False
+        if Admin.objects.filter(id=payload['id']).exists():
+            return Admin.objects.get(id=payload['id'])
+        else:
+            return False
     else:
         return False
 
@@ -43,14 +55,34 @@ class Scholar(models.Model):
 
 class User(models.Model):
     username = models.CharField(max_length=20, unique=True, null=False)
-    password = models.CharField(max_length=20, null=False)
+    password = models.CharField(max_length=100, null=False)
     email = models.CharField(max_length=20, unique=True, null=False)
     claimed_scholar = models.ForeignKey(Scholar, on_delete=models.CASCADE, null=True)
+
+    def create_token(self, timeout):
+        salt = settings.SECRET_KEY
+        headers = {
+            "typ": "jwt",
+            "alg": "HS256"
+        }
+        payload = {'id': self.id, 'username': self.username, 'type': 'user', 'exp': time.time() + timeout}
+        token = jwt.encode(payload=payload, key=salt, algorithm="HS256", headers=headers)
+        return token
 
 
 class Admin(models.Model):
     username = models.CharField(max_length=20, unique=True, null=False)
     password = models.CharField(max_length=20, null=False)
+
+    def create_token(self, timeout):
+        salt = settings.SECRET_KEY
+        headers = {
+            "typ": "jwt",
+            "alg": "HS256"
+        }
+        payload = {'id': self.id, 'username': self.username, 'type': 'admin', 'exp': time.time() + timeout}
+        token = jwt.encode(payload=payload, key=salt, algorithm="HS256", headers=headers)
+        return token
 
 
 class History(models.Model):
@@ -65,6 +97,7 @@ class Star_folder(models.Model):
 
 
 class Star(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     paper_id = models.CharField(max_length=20, null=False)
     folder = models.ForeignKey(Star_folder, on_delete=models.CASCADE)
 
