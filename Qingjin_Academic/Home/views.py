@@ -469,4 +469,4 @@ def star(request):
     folder.save()
     star0 = Star(user=user, paper_id=paper_id, type=type, folder=folder)
     star0.save()
-    return JsonResponse({'errno': 0, 'errmsg': '收藏成功','data':{'star_id':star0.id}})
+    return JsonResponse({'errno': 0, 'errmsg': '收藏成功', 'data': {'star_id': star0.id}})
