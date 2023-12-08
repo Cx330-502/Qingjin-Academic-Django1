@@ -165,6 +165,7 @@ def claim_file_upload_to(instance, filename):
 #     认证
 class Claim(models.Model):
     claimed_scholar = models.ForeignKey(Scholar, on_delete=models.CASCADE)
+    claim_email = models.CharField(max_length=20, null=True)
     claim_text = models.CharField(max_length=100, null=True)
     claim_file = models.FileField(upload_to=claim_file_upload_to, null=True)
 

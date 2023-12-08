@@ -88,3 +88,92 @@ def concept_handle(result_3):
         hit['image_url'] = hit0['_source']['image_url']
         result_data.append(hit)
     return result_data
+
+
+search_type_table = ['works', 'institutions', 'authors', 'concepts']
+com_table = [{
+    '标题': 'title',
+    '摘要': 'abstract',
+    '领域': 'domain',
+    '作者': 'author_all',
+    '来源': 'source',
+    '第一作者': 'main_author',
+    '主要领域': 'main_domain',
+}, {
+    '姓名': 'display_name',
+    '领域': 'domain',
+    '所在机构': 'institution',
+    '代表作': 'most_cited_work',
+    'orcid': 'orcid',
+}, {
+    '名字': 'display_name',
+    '简称': 'display_name_acronyms',
+    '国家编码': 'country_code',
+    '机构类型': 'institution_type',
+    '领域': 'domain',
+    '主要领域': 'main_domain',
+    'ror': 'ror',
+}, {
+    '名字': 'display_name',
+    '描述': 'description',
+    '学科等级': 'level',
+}
+]
+
+
+def handle_search_list_1(search_type, and_list, or_list, not_list, start_time, end_time):
+    must_list = []
+    should_list = []
+    must_not_list = []
+    if len(and_list) + len(or_list) + len(not_list) == 1 and and_list[0]['select'] == "":
+        must_list.append({"match": {"*": {"query": and_list[0]['content'], "fuzziness": "AUTO"}}})
+    else:
+        for item in and_list:
+            if item['clear'] == 1:
+                must_list.append({"match": {com_table[search_type][item['select']]: item['content']}})
+            else:
+                must_list.append({"match": {com_table[search_type][item['select']]: {"query": item['content'],
+                                                                                     "fuzziness": "AUTO"}}})
+        for item in or_list:
+            if item['clear'] == 1:
+                should_list.append({"match": {com_table[search_type][item['select']]: item['content']}})
+            else:
+                should_list.append({"match": {com_table[search_type][item['select']]: {"query": item['content'],
+                                                                                       "fuzziness": "AUTO"}}})
+        for item in not_list:
+            if item['clear'] == 1:
+                must_not_list.append({"match": {com_table[search_type][item['select']]: item['content']}})
+            else:
+                must_not_list.append({"match": {com_table[search_type][item['select']]: {"query": item['content'],
+                                                                                         "fuzziness": "AUTO"}}})
+    if search_type == 0 and ( start_time != 0 or end_time != 0):
+        temp = {}
+        if start_time != 0:
+            temp["gte"] = start_time
+        if end_time != 0:
+            temp["lte"] = end_time
+        search_body = {
+            "query": {
+                "bool": {
+                    "must": must_list,
+                    "should": should_list,
+                    "must_not": must_not_list,
+                    "filter": {
+                        "range": {
+                            "publication_date": temp
+                        }
+                    }
+                }
+            }
+        }
+    else:
+        search_body = {
+            "query": {
+                "bool": {
+                    "must": must_list,
+                    "should": should_list,
+                    "must_not": must_not_list
+                }
+            }
+        }
+    return search_body

@@ -50,13 +50,15 @@ if __name__ == '__main__':
     #     # for key in hit0.keys():
     #     #     print(key, hit0[key])
     #     # break
-    result_ids = [2330584152, 16253337]
     search_body = {
         "query": {
-            "terms": {
-                "_id": result_ids
-            }
-        }
+            "match_all": {}  # 可以根据需要修改查询条件
+        },
+        "sort": [
+            {"cited_count": {"order": "desc"}}  # 根据引用量字段降序排序
+        ],
+        # sort后的结果对应的是sort,真实结果在_source字段下
+        "size": 10  # 获取前十条结果
     }
     result = esConnection.search(index="works", body=search_body)
     print(type(result), result)

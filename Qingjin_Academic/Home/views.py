@@ -347,9 +347,13 @@ def get_stars(request):
         temp = oppo_dict_3[result_3['id']]
         temp['data'] = result_3
         result[temp['folder_name']]['list'].append(temp)
+    result000 = []
     for folder in result.keys():
         result[folder]['list'].sort(key=lambda x: x['time'], reverse=True)
-    return JsonResponse({'errno': 0, 'errmsg': '查询成功', 'data': result})
+        result000.append(result[folder])
+    result000.sort(key=lambda x: x['id'], reverse=True)
+    return JsonResponse({'errno': 0, 'errmsg': '查询成功', 'data': result000})
+
 
 def get_folders(request):
     if request.method != "POST":
@@ -363,6 +367,7 @@ def get_folders(request):
     for folder in star_folders:
         result.append({'folder_id': folder.id, 'folder_name': folder.name, 'num': folder.num})
     return JsonResponse({'errno': 0, 'errmsg': '查询成功', 'data': result})
+
 
 def unstar(request):
     if request.method != "POST":
