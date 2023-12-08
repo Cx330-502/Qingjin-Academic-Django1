@@ -27,5 +27,5 @@ jobs:
           context: .
           push: true
           tags: |
-            docker.pkg.github.com/${{ github.repository }}/Qingjin-Academic-Backend:${{ github.sha }}
-            docker.pkg.github.com/${{ github.repository }}/Qingjin-Academic-Backend:${{ github.event.release.tag_name }}
+            docker.pkg.github.com/${{ github.repository }}/qingjin-backend:${{ github.sha }}
+            docker.pkg.github.com/${{ github.repository }}/qingjin-backend:${{ github.event.release.tag_name }}
