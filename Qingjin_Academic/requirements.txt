@@ -5,3 +5,4 @@ PyJWT==2.4.0
 PyJWT==2.8.0
 PyMySQL==1.1.0
 Requests==2.31.0
+chardet==5.2.0
