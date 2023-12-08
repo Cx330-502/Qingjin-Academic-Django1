@@ -159,16 +159,16 @@ def get_history(request):
     for h in history:
         if h.type == 0:
             result_ids_0.append(h.paper_id)
-            history_ids_0[h.paper_id] = {'history_id': h.id, 'time': h.time, 'type': 0}
+            history_ids_0[h.paper_id] = {'history_id': h.id, 'time': h.time.strftime("%Y-%m-%d %H:%M:%S"), 'type': 0}
         elif h.type == 1:
             result_ids_1.append(h.paper_id)
-            history_ids_1[h.paper_id] = {'history_id': h.id, 'time': h.time, 'type': 1}
+            history_ids_1[h.paper_id] = {'history_id': h.id, 'time': h.time.strftime("%Y-%m-%d %H:%M:%S"), 'type': 1}
         elif h.type == 2:
             result_ids_2.append(h.paper_id)
-            history_ids_2[h.paper_id] = {'history_id': h.id, 'time': h.time, 'type': 2}
+            history_ids_2[h.paper_id] = {'history_id': h.id, 'time': h.time.strftime("%Y-%m-%d %H:%M:%S"), 'type': 2}
         elif h.type == 3:
             result_ids_3.append(h.paper_id)
-            history_ids_3[h.paper_id] = {'history_id': h.id, 'time': h.time, 'type': 3}
+            history_ids_3[h.paper_id] = {'history_id': h.id, 'time': h.time.strftime("%Y-%m-%d %H:%M:%S"), 'type': 3}
     search_body_0 = {
         "query": {
             "terms": {
@@ -277,16 +277,24 @@ def get_stars(request):
         for star in stars:
             if star.type == 0:
                 star_list_0.append(star.paper_id)
-                oppo_dict_0[star.paper_id] = {'star_id': star.id, 'type': 0, 'time': star.time, 'folder_id': folder.id}
+                oppo_dict_0[star.paper_id] = {'star_id': star.id, 'type': 0,
+                                              'time': star.time.strftime("%Y-%m-%d %H:%M:%S"),
+                                              'folder_id': folder.id, 'folder_name': folder.name}
             elif star.type == 1:
                 star_list_1.append(star.paper_id)
-                oppo_dict_1[star.paper_id] = {'star_id': star.id, 'type': 1, 'time': star.time, 'folder_id': folder.id}
+                oppo_dict_1[star.paper_id] = {'star_id': star.id, 'type': 1,
+                                              'time': star.time.strftime("%Y-%m-%d %H:%M:%S"),
+                                              'folder_id': folder.id, 'folder_name': folder.name}
             elif star.type == 2:
                 star_list_2.append(star.paper_id)
-                oppo_dict_2[star.paper_id] = {'star_id': star.id, 'type': 2, 'time': star.time, 'folder_id': folder.id}
+                oppo_dict_2[star.paper_id] = {'star_id': star.id, 'type': 2,
+                                              'time': star.time.strftime("%Y-%m-%d %H:%M:%S"),
+                                              'folder_id': folder.id, 'folder_name': folder.name}
             elif star.type == 3:
                 star_list_3.append(star.paper_id)
-                oppo_dict_3[star.paper_id] = {'star_id': star.id, 'type': 3, 'time': star.time, 'folder_id': folder.id}
+                oppo_dict_3[star.paper_id] = {'star_id': star.id, 'type': 3,
+                                              'time': star.time.strftime("%Y-%m-%d %H:%M:%S"),
+                                              'folder_id': folder.id, 'folder_name': folder.name}
     search_body_0 = {
         "query": {
             "terms": {
@@ -326,23 +334,35 @@ def get_stars(request):
     for result_0 in result0:
         temp = oppo_dict_0[result_0['id']]
         temp['data'] = result_0
-        result[temp['folder_id']]['list'].append(temp)
+        result[temp['folder_name']]['list'].append(temp)
     for result_1 in result1:
         temp = oppo_dict_1[result_1['id']]
         temp['data'] = result_1
-        result[temp['folder_id']]['list'].append(temp)
+        result[temp['folder_name']]['list'].append(temp)
     for result_2 in result2:
         temp = oppo_dict_2[result_2['id']]
         temp['data'] = result_2
-        result[temp['folder_id']]['list'].append(temp)
+        result[temp['folder_name']]['list'].append(temp)
     for result_3 in result3:
         temp = oppo_dict_3[result_3['id']]
         temp['data'] = result_3
-        result[temp['folder_id']]['list'].append(temp)
+        result[temp['folder_name']]['list'].append(temp)
     for folder in result.keys():
         result[folder]['list'].sort(key=lambda x: x['time'], reverse=True)
     return JsonResponse({'errno': 0, 'errmsg': '查询成功', 'data': result})
 
+def get_folders(request):
+    if request.method != "POST":
+        return JsonResponse({'errno': 1001, 'errmsg': '请求方法错误'})
+    body = json.loads(request.body)
+    user = auth_token(body.get("token"), False)
+    if user is None or user is False:
+        return JsonResponse({'errno': 1002, 'errmsg': '登录错误'})
+    star_folders = Star_folder.objects.filter(user=user).all()
+    result = []
+    for folder in star_folders:
+        result.append({'folder_id': folder.id, 'folder_name': folder.name, 'num': folder.num})
+    return JsonResponse({'errno': 0, 'errmsg': '查询成功', 'data': result})
 
 def unstar(request):
     if request.method != "POST":

@@ -13,6 +13,7 @@ urlpatterns = [
     path('clear_history', clear_history),
     path('get_history', get_history),
     path('get_stars', get_stars),
+    path('get_folders', get_folders),
     path('unstar', unstar),
     path('create_folder', create_folder),
     path('move_star', move_star),

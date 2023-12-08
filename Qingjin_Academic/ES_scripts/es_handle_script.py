@@ -73,6 +73,7 @@ def author_handle(result_1):
         hit['summary_stats'] = hit0['_source']['summary_stats']
         hit['orcid'] = hit0['_source']['orcid']
         result_data.append(hit)
+    return result_data
 
 
 def concept_handle(result_3):
@@ -86,4 +87,4 @@ def concept_handle(result_3):
         hit['level'] = hit0['_source']['level']
         hit['image_url'] = hit0['_source']['image_url']
         result_data.append(hit)
-    return None
+    return result_data
