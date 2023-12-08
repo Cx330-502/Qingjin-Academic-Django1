@@ -9,12 +9,16 @@ urlpatterns = [
     path('user/login', user_login),
     path('hot_paper', hot_paper),
     path('hot_institution', hot_institution),
+    path('delete_history', delete_history),
     path('clear_history', clear_history),
     path('get_history', get_history),
     path('get_stars', get_stars),
     path('unstar', unstar),
     path('create_folder', create_folder),
     path('move_star', move_star),
-    path('delete_folder', delete_folder)
+    path('delete_folder', delete_folder),
+
+    path('add_history', add_history),
+    path('star', star),
 
 ]

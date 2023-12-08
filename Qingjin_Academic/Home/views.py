@@ -148,18 +148,81 @@ def get_history(request):
     if user is None or user is False:
         return JsonResponse({'errno': 1002, 'errmsg': '登录错误'})
     history = History.objects.filter(user=user).all()
-    result_ids = []
+    result_ids_0 = []
+    result_ids_1 = []
+    result_ids_2 = []
+    result_ids_3 = []
+    history_ids_0 = {}
+    history_ids_1 = {}
+    history_ids_2 = {}
+    history_ids_3 = {}
     for h in history:
-        result_ids.append(h.paper_id)
-    search_body = {
+        if h.type == 0:
+            result_ids_0.append(h.paper_id)
+            history_ids_0[h.paper_id] = {'history_id': h.id, 'time': h.time, 'type': 0}
+        elif h.type == 1:
+            result_ids_1.append(h.paper_id)
+            history_ids_1[h.paper_id] = {'history_id': h.id, 'time': h.time, 'type': 1}
+        elif h.type == 2:
+            result_ids_2.append(h.paper_id)
+            history_ids_2[h.paper_id] = {'history_id': h.id, 'time': h.time, 'type': 2}
+        elif h.type == 3:
+            result_ids_3.append(h.paper_id)
+            history_ids_3[h.paper_id] = {'history_id': h.id, 'time': h.time, 'type': 3}
+    search_body_0 = {
         "query": {
             "terms": {
-                "_id": result_ids
+                "_id": result_ids_0
             }
         }
     }
-    result = es_search.body_search('works', search_body)
-    result = es_handle.hot_paper_handle(result)
+    result_0 = es_search.body_search('works', search_body_0)
+    result_0 = es_handle.hot_paper_handle(result_0)
+    search_body_1 = {
+        "query": {
+            "terms": {
+                "_id": result_ids_1
+            }
+        }
+    }
+    result_1 = es_search.body_search('authors', search_body_1)
+    result_1 = es_handle.author_handle(result_1)
+    search_body_2 = {
+        "query": {
+            "terms": {
+                "_id": result_ids_2
+            }
+        }
+    }
+    result_2 = es_search.body_search('institutions', search_body_2)
+    result_2 = es_handle.hot_institution_handle(result_2)
+    search_body_3 = {
+        "query": {
+            "terms": {
+                "_id": result_ids_3
+            }
+        }
+    }
+    result_3 = es_search.body_search('concepts', search_body_3)
+    result_3 = es_handle.concept_handle(result_3)
+    result = []
+    for result0 in result_0:
+        temp = history_ids_0[result0['id']]
+        temp['data'] = result0
+        result.append(temp)
+    for result1 in result_1:
+        temp = history_ids_1[result1['id']]
+        temp['data'] = result1
+        result.append(temp)
+    for result2 in result_2:
+        temp = history_ids_2[result2['id']]
+        temp['data'] = result2
+        result.append(temp)
+    for result3 in result_3:
+        temp = history_ids_3[result3['id']]
+        temp['data'] = result3
+        result.append(temp)
+    result.sort(key=lambda x: x['time'], reverse=True)
     return JsonResponse({'errno': 0, 'errmsg': '查询成功', 'data': result})
 
 
@@ -176,6 +239,21 @@ def clear_history(request):
     return JsonResponse({'errno': 0, 'errmsg': '清除成功'})
 
 
+def delete_history(request):
+    if request.method != "POST":
+        return JsonResponse({'errno': 1001, 'errmsg': '请求方法错误'})
+    body = json.loads(request.body)
+    user = auth_token(body.get("token"), False)
+    if user is None or user is False:
+        return JsonResponse({'errno': 1002, 'errmsg': '登录错误'})
+    history_id = body.get("history_id")
+    if history_id is None or not History.objects.filter(id=history_id).exists():
+        return JsonResponse({'errno': 1003, 'errmsg': 'history_id不能为空'})
+    history = History.objects.get(id=history_id)
+    history.delete()
+    return JsonResponse({'errno': 0, 'errmsg': '删除成功'})
+
+
 def get_stars(request):
     if request.method != "POST":
         return JsonResponse({'errno': 1001, 'errmsg': '请求方法错误'})
@@ -185,25 +263,84 @@ def get_stars(request):
         return JsonResponse({'errno': 1002, 'errmsg': '登录错误'})
     star_folders = Star_folder.objects.filter(user=user).all()
     result = {}
-    oppo_dict = {}
-    star_list = []
+    star_list_0 = []
+    star_list_1 = []
+    star_list_2 = []
+    star_list_3 = []
+    oppo_dict_0 = {}
+    oppo_dict_1 = {}
+    oppo_dict_2 = {}
+    oppo_dict_3 = {}
     for folder in star_folders:
-        result[folder.name] = []
+        result[folder.name] = {'name': folder.name, 'list': [], 'folder_id': folder.id, 'num': folder.num}
         stars = Star.objects.filter(folder=folder).all()
         for star in stars:
-            star_list.append(star.paper_id)
-            oppo_dict[star.paper_id] = folder.name
-    search_body = {
+            if star.type == 0:
+                star_list_0.append(star.paper_id)
+                oppo_dict_0[star.paper_id] = {'star_id': star.id, 'type': 0, 'time': star.time, 'folder_id': folder.id}
+            elif star.type == 1:
+                star_list_1.append(star.paper_id)
+                oppo_dict_1[star.paper_id] = {'star_id': star.id, 'type': 1, 'time': star.time, 'folder_id': folder.id}
+            elif star.type == 2:
+                star_list_2.append(star.paper_id)
+                oppo_dict_2[star.paper_id] = {'star_id': star.id, 'type': 2, 'time': star.time, 'folder_id': folder.id}
+            elif star.type == 3:
+                star_list_3.append(star.paper_id)
+                oppo_dict_3[star.paper_id] = {'star_id': star.id, 'type': 3, 'time': star.time, 'folder_id': folder.id}
+    search_body_0 = {
         "query": {
             "terms": {
-                "_id": star_list
+                "_id": star_list_0
             }
         }
     }
-    result0 = es_search.body_search('works', search_body)
+    result0 = es_search.body_search('works', search_body_0)
     result0 = es_handle.hot_paper_handle(result0)
-    for result1 in result0:
-        result[oppo_dict[result1['id']]].append(result1)
+    search_body_1 = {
+        "query": {
+            "terms": {
+                "_id": star_list_1
+            }
+        }
+    }
+    result1 = es_search.body_search('authors', search_body_1)
+    result1 = es_handle.author_handle(result1)
+    search_body_2 = {
+        "query": {
+            "terms": {
+                "_id": star_list_2
+            }
+        }
+    }
+    result2 = es_search.body_search('institutions', search_body_2)
+    result2 = es_handle.hot_institution_handle(result2)
+    search_body_3 = {
+        "query": {
+            "terms": {
+                "_id": star_list_3
+            }
+        }
+    }
+    result3 = es_search.body_search('concepts', search_body_3)
+    result3 = es_handle.concept_handle(result3)
+    for result_0 in result0:
+        temp = oppo_dict_0[result_0['id']]
+        temp['data'] = result_0
+        result[temp['folder_id']]['list'].append(temp)
+    for result_1 in result1:
+        temp = oppo_dict_1[result_1['id']]
+        temp['data'] = result_1
+        result[temp['folder_id']]['list'].append(temp)
+    for result_2 in result2:
+        temp = oppo_dict_2[result_2['id']]
+        temp['data'] = result_2
+        result[temp['folder_id']]['list'].append(temp)
+    for result_3 in result3:
+        temp = oppo_dict_3[result_3['id']]
+        temp['data'] = result_3
+        result[temp['folder_id']]['list'].append(temp)
+    for folder in result.keys():
+        result[folder]['list'].sort(key=lambda x: x['time'], reverse=True)
     return JsonResponse({'errno': 0, 'errmsg': '查询成功', 'data': result})
 
 
@@ -214,13 +351,14 @@ def unstar(request):
     user = auth_token(body.get("token"), False)
     if user is None or user is False:
         return JsonResponse({'errno': 1002, 'errmsg': '登录错误'})
-    paper_id = body.get("paper_id")
-    if paper_id is None:
-        return JsonResponse({'errno': 1003, 'errmsg': 'paper_id不能为空'})
-    star = Star.objects.filter(user=user, paper_id=paper_id).first()
+    star_id = body.get("star_id")
+    if star_id is None or not Star.objects.filter(id=star_id).exists():
+        return JsonResponse({'errno': 1003, 'errmsg': 'star_id不能为空'})
+    star = Star.objects.filter(id=star_id).first()
     folder = star.folder
     folder.num -= 1
     star.delete()
+    folder.save()
     return JsonResponse({'errno': 0, 'errmsg': '取消收藏成功'})
 
 
@@ -238,7 +376,12 @@ def create_folder(request):
         return JsonResponse({'errno': 1004, 'errmsg': '收藏夹已存在'})
     folder = Star_folder(user=user, name=folder_name, num=0)
     folder.save()
-    return JsonResponse({'errno': 0, 'errmsg': '新建文件夹成功'})
+    data = {
+        'folder_id': folder.id,
+        'folder_name': folder.name,
+        'num': folder.num
+    }
+    return JsonResponse({'errno': 0, 'errmsg': '新建文件夹成功', 'data': data})
 
 
 def move_star(request):
@@ -249,19 +392,23 @@ def move_star(request):
     if user is None or user is False:
         return JsonResponse({'errno': 1002, 'errmsg': '登录错误'})
     paper_id = body.get("paper_id")
-    folder_name = body.get("folder_name")
+    folder_id = body.get("folder_id")
     if paper_id is None:
         return JsonResponse({'errno': 1003, 'errmsg': 'paper_id不能为空'})
-    if folder_name is None:
-        return JsonResponse({'errno': 1004, 'errmsg': 'folder_name不能为空'})
-    if not Star_folder.objects.filter(user=user, name=folder_name).exists():
+    if folder_id is None:
+        return JsonResponse({'errno': 1004, 'errmsg': 'folder_id不能为空'})
+    if not Star_folder.objects.filter(id=folder_id).exists():
         return JsonResponse({'errno': 1005, 'errmsg': '收藏夹不存在'})
-    folder = Star_folder.objects.get(user=user, name=folder_name)
+    folder = Star_folder.objects.get(id=folder_id)
     star = Star.objects.filter(user=user, paper_id=paper_id).first()
     star.folder.num -= 1
+    star.folder.save()
     star.folder = folder
+    folder.num += 1
     star.save()
+    folder.save()
     return JsonResponse({'errno': 0, 'errmsg': '移动成功'})
+
 
 def delete_folder(request):
     if request.method != "POST":
@@ -270,9 +417,56 @@ def delete_folder(request):
     user = auth_token(body.get("token"), False)
     if user is None or user is False:
         return JsonResponse({'errno': 1002, 'errmsg': '登录错误'})
-    folder_name = body.get("folder_name")
-    if folder_name is None or not Star_folder.objects.filter(user=user, name=folder_name).exists():
-        return JsonResponse({'errno': 1004, 'errmsg': 'folder_name不能为空'})
-    folder = Star_folder.objects.get(user=user, name=folder_name)
+    folder_id = body.get("folder_id")
+    if folder_id is None or not Star_folder.objects.filter(id=folder_id).exists():
+        return JsonResponse({'errno': 1003, 'errmsg': 'folder_id不能为空'})
+    folder = Star_folder.objects.get(id=folder_id)
     folder.delete()
     return JsonResponse({'errno': 0, 'errmsg': '删除成功'})
+
+
+def add_history(request):
+    if request.method != "POST":
+        return JsonResponse({'errno': 1001, 'errmsg': '请求方法错误'})
+    body = json.loads(request.body)
+    user = auth_token(body.get("token"), False)
+    if user is None or user is False:
+        return JsonResponse({'errno': 1002, 'errmsg': '登录错误'})
+    paper_id = body.get("paper_id")
+    type = body.get("type")
+    if paper_id is None:
+        return JsonResponse({'errno': 1003, 'errmsg': 'paper_id不能为空'})
+    if type is None:
+        return JsonResponse({'errno': 1004, 'errmsg': 'type不能为空'})
+    if not History.objects.filter(user=user, paper_id=paper_id, type=type).exists():
+        history = History(user=user, paper_id=paper_id, type=type)
+        history.save()
+    return JsonResponse({'errno': 0, 'errmsg': '添加成功'})
+
+
+def star(request):
+    if request.method != "POST":
+        return JsonResponse({'errno': 1001, 'errmsg': '请求方法错误'})
+    body = json.loads(request.body)
+
+    user = auth_token(body.get("token"), False)
+    if user is None or user is False:
+        return JsonResponse({'errno': 1002, 'errmsg': '登录错误'})
+
+    paper_id = body.get("paper_id")
+    type = body.get("type")
+    folder_id = body.get("folder_id")
+    if paper_id is None:
+        return JsonResponse({'errno': 1003, 'errmsg': 'paper_id不能为空'})
+    if type is None:
+        return JsonResponse({'errno': 1004, 'errmsg': 'type不能为空'})
+    if folder_id is None or not Star_folder.objects.filter(id=folder_id).exists():
+        return JsonResponse({'errno': 1005, 'errmsg': 'folder_id不能为空'})
+    if Star.objects.filter(user=user, paper_id=paper_id).exists():
+        return JsonResponse({'errno': 1006, 'errmsg': '已收藏'})
+    folder = Star_folder.objects.get(id=folder_id)
+    folder.num += 1
+    folder.save()
+    star0 = Star(user=user, paper_id=paper_id, type=type, folder=folder)
+    star0.save()
+    return JsonResponse({'errno': 0, 'errmsg': '收藏成功','data':{'star_id':star0.id}})

@@ -60,3 +60,30 @@ def hot_institution_handle(result):
         hit['summary_stats'] = hit0['_source']['summary_stats']
         result_data.append(hit)
     return result_data
+
+
+def author_handle(result_1):
+    result_data = []
+    for hit0 in result_1['hits']['hits']:
+        hit = {}
+        hit['display_name'] = hit0['_source']['display_name']
+        hit['id'] = hit0['_source']['id']
+        hit['most_cited_work'] = hit0['_source']['most_cited_work']
+        hit['cited_by_count'] = hit0['_source']['cited_by_count']
+        hit['summary_stats'] = hit0['_source']['summary_stats']
+        hit['orcid'] = hit0['_source']['orcid']
+        result_data.append(hit)
+
+
+def concept_handle(result_3):
+    result_data = []
+    for hit0 in result_3['hits']['hits']:
+        hit = {}
+        hit['display_name'] = hit0['_source']['display_name']
+        hit['id'] = hit0['_source']['id']
+        hit['description'] = hit0['_source']['description']
+        hit['summary_stats'] = hit0['_source']['summary_stats']
+        hit['level'] = hit0['_source']['level']
+        hit['image_url'] = hit0['_source']['image_url']
+        result_data.append(hit)
+    return None

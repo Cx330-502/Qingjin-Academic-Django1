@@ -88,6 +88,8 @@ class Admin(models.Model):
 class History(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     paper_id = models.CharField(max_length=20, null=False)
+    type = models.IntegerField(default=0)  # 0:paper 1:学者 2:机构 3:学科
+    time = models.DateTimeField(auto_now=True)
 
 
 class Star_folder(models.Model):
@@ -98,8 +100,10 @@ class Star_folder(models.Model):
 
 class Star(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    type = models.IntegerField(default=0)  # 0:paper 1:学者 2:机构 3:学科
     paper_id = models.CharField(max_length=20, null=False)
     folder = models.ForeignKey(Star_folder, on_delete=models.CASCADE)
+    time = models.DateTimeField(auto_now=True)
 
 
 class Comment(models.Model):
