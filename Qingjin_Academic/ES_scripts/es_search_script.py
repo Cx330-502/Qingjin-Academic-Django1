@@ -20,9 +20,9 @@ def es_connect():
         return
 
 
-def body_search(index, body, timeout):
+def body_search(index, body):
     es_connect()
-    result = esConnection.search(index=index, body=body, timeout=12000)
+    result = esConnection.search(index=index, body=body, request_timeout=12000)
     return result
 
 

@@ -6,4 +6,5 @@ urlpatterns = [
     # 这是一个样例，指定路由名为url_name，对应处理函数为当前app内views.py中的api_name
     path('comment', comment),
     path('get_comment', get_comment),
+    path('report_comment_or_paper', report_comment_comment_or_paper),
 ]

@@ -72,4 +72,4 @@ def search(request):
     result = es_search.body_search(search_type0, search_body)
     print(datetime.datetime.now() - time0)
     result = es_handle.handle_search_result(result, search_type, first_search, work_clustering, work_clustering)
-    return JsonResponse({'errno': 0, 'errmsg': 'success', 'result': result})
+    return JsonResponse({'errno': 0, 'errmsg': 'success', 'data': result})

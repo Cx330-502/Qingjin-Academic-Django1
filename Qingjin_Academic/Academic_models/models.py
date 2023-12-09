@@ -107,10 +107,11 @@ class Star(models.Model):
 
 
 class Comment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    comment_time = models.DateTimeField(auto_now=True)
     paper_id = models.CharField(max_length=20, null=False)
     content = models.CharField(max_length=20, null=False)
     top = models.BooleanField(default=False)
-    star_num = models.IntegerField(default=0)
 
 
 def report_file_upload_to(instance, filename):
