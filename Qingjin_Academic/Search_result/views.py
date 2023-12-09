@@ -1,3 +1,4 @@
+import datetime
 import random
 import base64
 import re
@@ -42,6 +43,33 @@ def search(request):
     if end_time is None:
         end_time = 0
     search_body = es_handle.handle_search_list_1(search_type, and_list, or_list, not_list, start_time, end_time)
-
-
-
+    first_search = body.get('first_search')
+    if first_search is None:
+        first_search = 1
+    work_clustering = body.get('work_clustering')
+    if work_clustering is None:
+        work_clustering = 0
+    author_clustering = body.get('author_clustering')
+    if author_clustering is None:
+        author_clustering = 0
+    size = body.get('size')
+    if size is None:
+        size = 20
+    from_ = body.get('from')
+    if from_ is None:
+        from_ = 0
+    sort_ = body.get('sort')
+    if sort_ is None:
+        sort_ = -1
+    search_body, search_type0 = es_handle.handle_search_list_2(search_body, search_type, first_search,
+                                                               work_clustering, author_clustering, size, from_, sort_)
+    extend_list = body.get('extend_list')
+    if extend_list is None:
+        extend_list = []
+    if len(extend_list) > 0:
+        search_body = es_handle.handle_search_list_3(search_body, extend_list)
+    time0 = datetime.datetime.now()
+    result = es_search.body_search(search_type0, search_body)
+    print(datetime.datetime.now() - time0)
+    result = es_handle.handle_search_result(result, search_type, first_search, work_clustering, work_clustering)
+    return JsonResponse({'errno': 0, 'errmsg': 'success', 'result': result})
