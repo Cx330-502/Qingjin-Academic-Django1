@@ -39,6 +39,7 @@ def get_comment(request):
         data = {
             "id": comment0.id,
             "user": comment0.user.username,
+            "user_id": comment0.user.id,
             "comment_time": comment0.comment_time.strftime("%Y-%m-%d %H:%M:%S"),
             "content": comment0.content,
             "top": comment0.top
@@ -85,4 +86,5 @@ def report_comment_comment_or_paper(request):
             report = Report(paper_id=paper_id, report_text=report_text, report_file=report_file)
     report.save()
     affair = Affair(report=report, user=user, type=1, submit_time=datetime.datetime.now(), status=0)
+    affair.save()
     return JsonResponse({'errno': 0, 'errmsg': '举报成功'})
