@@ -93,12 +93,20 @@ def user_login(request):
         return JsonResponse({'errno': 1002, 'errmsg': '用户名或邮箱不存在'})
     if user.password == md5_encrypt(password):
         token = user.create_token(3600 * 24)
-        data = {'token': token,
-                'user_id': user.id,
-                'username': user.username,
-                'email': user.email,
-                'is_admin': is_admin
-                }
+        if is_admin:
+            data = {'token': token,
+                    'user_id': user.id,
+                    'username': user.username,
+                    'email': "",
+                    'is_admin': is_admin
+                    }
+        else:
+            data = {'token': token,
+                    'user_id': user.id,
+                    'username': user.username,
+                    'email': user.email,
+                    'is_admin': is_admin
+                    }
         return JsonResponse(
             {'errno': 0, 'errmsg': '登录成功', 'data': data})
     return JsonResponse({'errno': 1003, 'errmsg': '密码错误'})
@@ -351,7 +359,7 @@ def get_stars(request):
     for folder in result.keys():
         result[folder]['list'].sort(key=lambda x: x['time'], reverse=True)
         result000.append(result[folder])
-    result000.sort(key=lambda x: x['id'], reverse=True)
+    result000.sort(key=lambda x: x['name'], reverse=True)
     return JsonResponse({'errno': 0, 'errmsg': '查询成功', 'data': result000})
 
 

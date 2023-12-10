@@ -50,13 +50,14 @@ def auth_token(token, is_admin):
 class Scholar(models.Model):
     es_id = models.CharField(max_length=20, unique=True, null=False)
     name = models.CharField(max_length=80, null=False)
+    claim_email = models.TextField(null=True)
     claimed_user_id = models.IntegerField(null=True)
 
 
 class User(models.Model):
     username = models.CharField(max_length=20, unique=True, null=False)
     password = models.CharField(max_length=100, null=False)
-    email = models.CharField(max_length=20, unique=True, null=False)
+    email = models.CharField(max_length=50, unique=True, null=False)
     claimed_scholar = models.ForeignKey(Scholar, on_delete=models.CASCADE, null=True)
 
     def create_token(self, timeout):
@@ -72,7 +73,7 @@ class User(models.Model):
 
 class Admin(models.Model):
     username = models.CharField(max_length=20, unique=True, null=False)
-    password = models.CharField(max_length=20, null=False)
+    password = models.CharField(max_length=100, null=False)
 
     def create_token(self, timeout):
         salt = settings.SECRET_KEY
@@ -148,6 +149,7 @@ def appeal_file_upload_to(instance, filename):
 #     申诉
 class Appeal(models.Model):
     appealed_scholar = models.ForeignKey(Scholar, on_delete=models.CASCADE)
+    appeal_email = models.CharField(max_length=50, null=True)
     appeal_text = models.CharField(max_length=100, null=True)
     appeal_file = models.FileField(upload_to=appeal_file_upload_to, null=True)
 
@@ -166,7 +168,7 @@ def claim_file_upload_to(instance, filename):
 #     认证
 class Claim(models.Model):
     claimed_scholar = models.ForeignKey(Scholar, on_delete=models.CASCADE)
-    claim_email = models.CharField(max_length=20, null=True)
+    claim_email = models.CharField(max_length=50, null=True)
     claim_text = models.CharField(max_length=100, null=True)
     claim_file = models.FileField(upload_to=claim_file_upload_to, null=True)
 
@@ -186,3 +188,4 @@ class Affair(models.Model):
 class Paper_display(models.Model):
     es_id = models.CharField(max_length=20, unique=True, null=False)
     display = models.BooleanField(default=True)
+

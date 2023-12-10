@@ -36,13 +36,20 @@ def get_comment(request):
     comments = Comment.objects.filter(paper_id=paper_id).order_by('-top')
     return_list = []
     for comment0 in comments:
+        is_scholar = False
+        author_id = ""
+        if comment0.user.claimed_scholar is not None:
+            is_scholar = True
+            author_id = comment0.user.claimed_scholar.es_id
         data = {
             "id": comment0.id,
             "user": comment0.user.username,
             "user_id": comment0.user.id,
             "comment_time": comment0.comment_time.strftime("%Y-%m-%d %H:%M:%S"),
             "content": comment0.content,
-            "top": comment0.top
+            "top": comment0.top,
+            "is_scholar": is_scholar,
+            "author_id": author_id,
         }
         return_list.append(data)
     return JsonResponse({'errno': 0,
@@ -53,14 +60,14 @@ def get_comment(request):
 def report_comment_comment_or_paper(request):
     if request.method != "POST":
         return JsonResponse({'errno': 1001, 'errmsg': '请求方法错误'})
-    body = json.loads(request.body)
+    body = request.POST.copy()
     user = auth_token(body.get("token"), False)
     if user is None or user is False:
         return JsonResponse({'errno': 1002, 'errmsg': '登录错误'})
     paper_id = body.get("paper_id")
     comment_id = body.get("comment_id")
     report_text = body.get("report_text")
-    report_file = body.get("report_file")
+    report_file = request.FILES.get("report_file")
     if paper_id is None:
         return JsonResponse({'errno': 1003, 'errmsg': '缺少举报对象'})
     if report_text is None and report_file is None:
@@ -71,20 +78,33 @@ def report_comment_comment_or_paper(request):
         comment0 = Comment.objects.get(id=comment_id)
         if comment0.user == user:
             return JsonResponse({'errno': 1006, 'errmsg': '不能举报自己的评论'})
-        if report_text == None:
-            report = Report(paper_id=paper_id, comment=comment0, report_file=report_file)
-        elif report_file == None:
+        if report_text is None:
+            report = Report(paper_id=paper_id, comment=comment0)
+            report.save()
+            report.report_file = report_file
+        elif report_file is None:
             report = Report(paper_id=paper_id, comment=comment0, report_text=report_text)
         else:
-            report = Report(paper_id=paper_id, comment=comment0, report_text=report_text, report_file=report_file)
+            report = Report(paper_id=paper_id, comment=comment0, report_text=report_text)
+            report.save()
+            report.report_file = report_file
     else:
-        if report_text == None:
-            report = Report(paper_id=paper_id, report_file=report_file)
-        elif report_file == None:
+        if report_text is None:
+            report = Report(paper_id=paper_id)
+            report.save()
+            report.report_file = report_file
+        elif report_file is None:
             report = Report(paper_id=paper_id, report_text=report_text)
         else:
-            report = Report(paper_id=paper_id, report_text=report_text, report_file=report_file)
+            report = Report(paper_id=paper_id, report_text=report_text)
+            report.save()
+            report.report_file = report_file
     report.save()
     affair = Affair(report=report, user=user, type=1, submit_time=datetime.datetime.now(), status=0)
     affair.save()
     return JsonResponse({'errno': 0, 'errmsg': '举报成功'})
+
+
+
+
+

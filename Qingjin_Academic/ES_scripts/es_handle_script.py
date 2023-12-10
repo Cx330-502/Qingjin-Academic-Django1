@@ -52,6 +52,7 @@ def institution_field_handle(institution):
     if institution == '' or institution is None:
         return []
     institution_list = []
+    print(institution)
     institutions = institution.split(' | ')
     for institution_info in institutions:
         if institution_info == '':
@@ -98,7 +99,7 @@ def hot_paper_handle(result):
     for hit0 in result['hits']['hits']:
         try:
             for key in hit0['highlight']:
-                hit0['_source'][key] = hit0['highlight'][key]
+                hit0['_source'][key] = hit0['highlight'][key][0]
         except:
             pass
         hit = {}
@@ -116,7 +117,7 @@ def hot_institution_handle(result):
     for hit0 in result['hits']['hits']:
         try:
             for key in hit0['highlight']:
-                hit0['_source'][key] = hit0['highlight'][key]
+                hit0['_source'][key] = hit0['highlight'][key][0]
         except:
             pass
         hit = {}
@@ -134,7 +135,7 @@ def author_handle(result_1):
     for hit0 in result_1['hits']['hits']:
         try:
             for key in hit0['highlight']:
-                hit0['_source'][key] = hit0['highlight'][key]
+                hit0['_source'][key] = hit0['highlight'][key][0]
         except:
             pass
         hit = {}
@@ -153,7 +154,7 @@ def concept_handle(result_3):
     for hit0 in result_3['hits']['hits']:
         try:
             for key in hit0['highlight']:
-                hit0['_source'][key] = hit0['highlight'][key]
+                hit0['_source'][key] = hit0['highlight'][key][0]
         except:
             pass
         hit = {}
@@ -196,21 +197,21 @@ def institution_handle2(result):
     for hit0 in result['hits']['hits']:
         try:
             for key in hit0['highlight']:
-                hit0['_source'][key] = hit0['highlight'][key]
+                hit0['_source'][key] = hit0['highlight'][key][0]
         except:
             pass
         hit = {}
         hit['display_name'] = hit0['_source']['display_name']
         hit['display_name_acronyms'] = hit0['_source'].get('display_name_acronyms', "")
-        hit['country_code'] = hit0['_source']['country_code']
+        hit['country_code'] = hit0['_source'].get('country_code', "")
         hit['image_url'] = hit0['_source'].get('image_url', "")
         hit['id'] = hit0['_source']['id']
         hit['summary_stats'] = hit0['_source']['summary_stats']
         hit['homepage_url'] = hit0['_source'].get('homepage_url', "")
-        hit['type'] = hit0['_source']['type']
+        hit['type'] = hit0['_source'].get('type', "")
         hit['domain'] = domain_field_handle(hit0['_source']['domain'])
-        hit['geo'] = hit0['_source']['geo']
-        hit['ror'] = hit0['_source']['ror']
+        hit['geo'] = hit0['_source'].get('geo', "")
+        hit['ror'] = hit0['_source'].get('ror', "")
         result_data.append(hit)
     return result_data
 
@@ -220,7 +221,7 @@ def author_handle2(result_1):
     for hit0 in result_1['hits']['hits']:
         try:
             for key in hit0['highlight']:
-                hit0['_source'][key] = hit0['highlight'][key]
+                hit0['_source'][key] = hit0['highlight'][key][0]
         except:
             pass
         hit = {}
@@ -241,7 +242,7 @@ def concept_handle2(result_3):
     for hit0 in result_3['hits']['hits']:
         try:
             for key in hit0['highlight']:
-                hit0['_source'][key] = hit0['highlight'][key]
+                hit0['_source'][key] = hit0['highlight'][key][0]
         except:
             pass
         hit = {}
