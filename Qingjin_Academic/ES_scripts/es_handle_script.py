@@ -282,34 +282,34 @@ def concept_handle2(result_3):
 
 search_type_table = ['works', 'authors', 'institutions', 'concepts']
 com_table = [{
-    '标题': 'title',
-    '摘要': 'abstract',
-    '领域': 'domain',
-    '作者': 'author_all',
-    '来源': 'source',
-    '第一作者': 'author_main',
-    '主要领域': 'domain_main',
+    'Title': 'title',
+    'Abstract': 'abstract',
+    'Domain': 'domain',
+    'Author': 'author_all',
+    'Source': 'source',
+    'Main Author': 'author_main',
+    'Main Domain': 'domain_main',
     'ID': 'id',
 }, {
-    '姓名': 'display_name',
-    '领域': 'domain',
-    '所在机构': 'institution',
-    '代表作': 'most_cited_work',
-    'orcid': 'orcid',
+    'Name': 'display_name',
+    'Domain': 'domain',
+    'Institution': 'institution',
+    'Most Representative Work': 'most_cited_work',
+    'Orcid': 'orcid',
     'ID': 'id',
 }, {
-    '名字': 'display_name',
-    '简称': 'display_name_acronyms',
-    '国家编码': 'country_code',
-    '机构类型': 'institution_type',
-    '领域': 'domain',
-    '主要领域': 'domain_main',
-    'ror': 'ror',
+    'Name': 'display_name',
+    'Acronyms': 'display_name_acronyms',
+    'Country Code': 'country_code',
+    'Institution Type': 'institution_type',
+    'Domain': 'domain',
+    'Main Domain': 'domain_main',
+    'Ror': 'ror',
     'ID': 'id',
 }, {
-    '名字': 'display_name',
-    '描述': 'description',
-    '学科等级': 'level',
+    'Name': 'display_name',
+    'Description': 'description',
+    'Concept Level': 'level',
     'ID': 'id',
 }
 ]
@@ -325,12 +325,16 @@ def handle_search_list_1(search_type, and_list, or_list, not_list, start_time, e
         highlight['fields']['*'] = {}
     else:
         for item in and_list:
-            if item['clear'] == 1:
-                must_list.append({"match": {com_table[search_type][item['select']]: item['content']}})
+            if item['select'] == "":
+                must_list.append({"query_string": {"query": item['content'], "fields": ["*"]}})
+                highlight['fields']['*'] = {}
             else:
-                must_list.append({"match": {com_table[search_type][item['select']]: {"query": item['content'],
-                                                                                     "fuzziness": "AUTO"}}})
-            highlight['fields'][com_table[search_type][item['select']]] = {}
+                if item['clear'] == 1:
+                    must_list.append({"match": {com_table[search_type][item['select']]: item['content']}})
+                else:
+                    must_list.append({"match": {com_table[search_type][item['select']]: {"query": item['content'],
+                                                                                         "fuzziness": "AUTO"}}})
+                highlight['fields'][com_table[search_type][item['select']]] = {}
         for item in or_list:
             if item['clear'] == 1:
                 should_list.append({"match": {com_table[search_type][item['select']]: item['content']}})
