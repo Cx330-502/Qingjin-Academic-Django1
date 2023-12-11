@@ -100,7 +100,7 @@ def get_affairs(request):
                 data["appeal_email"] = affair.appeal.appeal_email
                 data["appeal_type"] = 1
                 temp_email_domain = affair.appeal.appeal_email.split("@")[1].split(".")
-                temp = "./../Author/domains/common/"
+                temp = "./Author/domains/common/"
                 j = len(temp_email_domain)
                 while j > 0:
                     temp += temp_email_domain[j - 1] + "/"
@@ -129,7 +129,7 @@ def get_affairs(request):
             if affair.claim.claim_file is not None and affair.claim.claim_file.name != "":
                 data["claim_file"] = settings.BACKEND_URL + affair.claim.claim_file.url
             temp_email_domain = affair.claim.claim_email.split("@")[1].split(".")
-            temp = "./../Author/domains/common/"
+            temp = "./Author/domains/common/"
             j = len(temp_email_domain)
             while j > 0:
                 temp += temp_email_domain[j - 1] + "/"
@@ -241,9 +241,11 @@ def handle_report(request):
     if user is None or user is False:
         return JsonResponse({'errno': 1002, 'errmsg': '登录错误'})
     affair_id = body.get("affair_id")
-    if affair_id is None or Affair.objects.filter(id=affair_id).exists():
+    if affair_id is None or not Affair.objects.filter(id=affair_id).exists():
         return JsonResponse({'errno': 1003, 'errmsg': '事务不存在'})
     affair = Affair.objects.get(id=affair_id)
+    if affair.type != 1:
+        return JsonResponse({'errno': 1007, 'errmsg': '事务类型错误'})
     handle_reason = body.get("handle_reason")
     if handle_reason is None:
         return JsonResponse({'errno': 1004, 'errmsg': '缺少处理理由'})
@@ -258,17 +260,19 @@ def handle_report(request):
                               time=affair.submit_time.strftime("%Y-%m-%d %H:%M:%S"),
                               affair_name="举报",
                               username=user.username,
-                              decison="不处理",
+                              decision="不处理",
                               reason=handle_reason).send_email(1)
         report = affair.report
         report.delete()
     elif decision == 1:
+        if affair.report.comment is None:
+            return JsonResponse({'errno': 1006, 'errmsg': '评论不存在'})
         noticeClass.SendEmail(data=noticeClass.data,
                               receiver=user.email,
                               time=affair.submit_time.strftime("%Y-%m-%d %H:%M:%S"),
                               affair_name="举报",
                               username=user.username,
-                              decison="删除评论",
+                              decision="删除评论",
                               reason=handle_reason).send_email(1)
         report = affair.report
         comment = report.comment
@@ -279,7 +283,7 @@ def handle_report(request):
                               time=affair.submit_time.strftime("%Y-%m-%d %H:%M:%S"),
                               affair_name="举报",
                               username=user.username,
-                              decison="删除论文",
+                              decision="删除论文",
                               reason=handle_reason).send_email(1)
         affair.status = -1
         affair.save()
@@ -294,9 +298,12 @@ def handle_claim(request):
     if user is None or user is False:
         return JsonResponse({'errno': 1002, 'errmsg': '登录错误'})
     affair_id = body.get("affair_id")
-    if affair_id is None or Affair.objects.filter(id=affair_id).exists():
+    if affair_id is None or not Affair.objects.filter(id=affair_id).exists():
         return JsonResponse({'errno': 1003, 'errmsg': '事务不存在'})
     affair = Affair.objects.get(id=affair_id)
+    if affair.type != 3:
+        return JsonResponse({'errno': 1006, 'errmsg': '事务类型错误'})
+    user = affair.user
     handle_reason = body.get("handle_reason")
     if handle_reason is None:
         return JsonResponse({'errno': 1004, 'errmsg': '缺少处理理由'})
@@ -314,7 +321,7 @@ def handle_claim(request):
                               time=affair.submit_time.strftime("%Y-%m-%d %H:%M:%S"),
                               affair_name="认领学者身份",
                               username=user.username,
-                              decison="不通过",
+                              decision="不通过",
                               reason=handle_reason).send_email(1)
         affair.claim.delete()
     elif decision == 1:
@@ -325,15 +332,17 @@ def handle_claim(request):
                               time=affair.submit_time.strftime("%Y-%m-%d %H:%M:%S"),
                               affair_name="认领学者身份",
                               username=user.username,
-                              decison="通过",
+                              decision="通过",
                               reason=handle_reason).send_email(1)
         claim = affair.claim
-        claim.claimed_scholar.claimed_user_id = affair.id
-        if claim.claimed_scholar.claim_email is None:
+        claim.claimed_scholar.claimed_user_id = user.id
+        if claim.claimed_scholar.claim_email is None or claim.claimed_scholar.claim_email == "":
             claim.claimed_scholar.claim_email = claim.claim_email
         else:
             claim.claimed_scholar.claim_email += "," + claim.claim_email
         claim.claimed_scholar.save()
+        user.claimed_scholar = claim.claimed_scholar
+        user.save()
         scholar_id = claim.claimed_scholar.es_id
         claim.delete()
         claim_email = claim.claim_email
@@ -349,9 +358,12 @@ def handle_appeal(request):
     if user is None or user is False:
         return JsonResponse({'errno': 1002, 'errmsg': '登录错误'})
     affair_id = body.get("affair_id")
-    if affair_id is None or Affair.objects.filter(id=affair_id).exists():
+    if affair_id is None or not Affair.objects.filter(id=affair_id).exists():
         return JsonResponse({'errno': 1003, 'errmsg': '事务不存在'})
     affair = Affair.objects.get(id=affair_id)
+    if affair.type != 2:
+        return JsonResponse({'errno': 1007, 'errmsg': '事务类型错误'})
+    user = affair.user
     handle_reason = body.get("handle_reason")
     if handle_reason is None:
         return JsonResponse({'errno': 1004, 'errmsg': '缺少处理理由'})
@@ -365,7 +377,7 @@ def handle_appeal(request):
                               time=affair.submit_time.strftime("%Y-%m-%d %H:%M:%S"),
                               affair_name="申诉",
                               username=user.username,
-                              decison="申诉无效",
+                              decision="申诉无效",
                               reason=handle_reason).send_email(1)
         affair.appeal.delete()
     elif decision == 1:
@@ -378,20 +390,23 @@ def handle_appeal(request):
                               time=affair.submit_time.strftime("%Y-%m-%d %H:%M:%S"),
                               affair_name="申诉",
                               username=user.username,
-                              decison="撤销对方身份",
+                              decision="撤销对方身份",
                               reason=handle_reason).send_email(1)
         noticeClass.SendEmail(data=noticeClass.data,
                               receiver=user2.email,
                               time=affair.submit_time.strftime("%Y-%m-%d %H:%M:%S"),
                               affair_name="申诉",
                               username=user.username,
-                              decison="撤销对方身份",
+                              decision="被撤销身份",
                               reason=handle_reason).send_email(2)
+        user2.claimed_scholar = None
         appeal = affair.appeal
         appeal.appealed_scholar.claimed_user_id = None
         appeal.appealed_scholar.save()
         appeal.delete()
     elif decision == 2:
+        if user.claimed_scholar is not None:
+            return JsonResponse({'errno': 1008, 'errmsg': '已经认领了学者身份'})
         temp_id = affair.appeal.appealed_scholar.claimed_user_id
         if not User.objects.filter(id=temp_id).exists():
             return JsonResponse({'errno': 1006, 'errmsg': '用户不存在'})
@@ -405,25 +420,27 @@ def handle_appeal(request):
                               time=affair.submit_time.strftime("%Y-%m-%d %H:%M:%S"),
                               affair_name="申诉",
                               username=user.username,
-                              decison="撤销对方身份并获得学者身份",
+                              decision="撤销对方身份并获得学者身份",
                               reason=handle_reason).send_email(1)
         noticeClass.SendEmail(data=noticeClass.data,
                               receiver=user2.email,
                               time=affair.submit_time.strftime("%Y-%m-%d %H:%M:%S"),
                               affair_name="申诉",
                               username=user.username,
-                              decison="撤销对方身份并获得学者身份",
+                              decision="撤销对方身份并获得学者身份",
                               reason=handle_reason).send_email(2)
         appeal = affair.appeal
         scholar = appeal.appealed_scholar
         scholar.claimed_user_id = user.id
-        if scholar.claim_email is None:
+        if scholar.claim_email is None or scholar.claim_email == "":
             scholar.claim_email = appeal_email
         else:
             scholar.claim_email += "," + appeal_email
         scholar.save()
         user.claimed_scholar = scholar
         user.save()
+        user2.claimed_scholar = None
+        user2.save()
         appeal.delete()
         domain_evolve(appeal_email, appeal_email_special, scholar.es_id)
     return JsonResponse({'errno': 0, 'errmsg': '处理成功'})
@@ -432,9 +449,9 @@ def handle_appeal(request):
 def domain_evolve(claim_email, claim_email_special, scholar_id):
     if claim_email_special != 0:
         temp_email_domain = claim_email.split("@")[1].split(".")
-        temp = "./../Author/domains/evolving/"
-        temp1 = "./../Author/domains/"
-        temp2 = "./../Author/domains/common/"
+        temp = "./Author/domains/evolving/"
+        temp1 = "./Author/domains/"
+        temp2 = "./Author/domains/common/"
         j = len(temp_email_domain)
         while j > 1:
             temp += temp_email_domain[j - 1] + "/"

@@ -1,10 +1,19 @@
 import datetime
+import random
+import base64
+import re
+import Home.extra_codes.captcha as captchaClass
+import ES_scripts.es_search_script as es_search
+import ES_scripts.es_handle_script as es_handle
+import hashlib
 
-from django.http import JsonResponse
-from django.shortcuts import render
-import json
-# Create your views here.
+from django.conf import settings
 from Academic_models.models import *
+from django.core.exceptions import ValidationError
+from django.core.files import File
+from django.core.validators import validate_email
+from django.http import JsonResponse
+import json
 
 
 def comment(request):
@@ -72,7 +81,7 @@ def report_comment_comment_or_paper(request):
         return JsonResponse({'errno': 1003, 'errmsg': '缺少举报对象'})
     if report_text is None and report_file is None:
         return JsonResponse({'errno': 1004, 'errmsg': '缺少举报内容'})
-    if comment_id is not None:
+    if comment_id is not None and comment_id != -1:
         if not Comment.objects.filter(id=comment_id).exists():
             return JsonResponse({'errno': 1005, 'errmsg': '评论不存在'})
         comment0 = Comment.objects.get(id=comment_id)
@@ -105,6 +114,24 @@ def report_comment_comment_or_paper(request):
     return JsonResponse({'errno': 0, 'errmsg': '举报成功'})
 
 
-
-
-
+def get_paper_information(request):
+    if request.method != "POST":
+        return JsonResponse({'errno': 1001, 'errmsg': '请求方法错误'})
+    body = json.loads(request.body)
+    user = auth_token(body.get('token'), False)
+    paper_id = body.get("paper_id")
+    if paper_id is None:
+        return JsonResponse({'errno': 1002, 'errmsg': '缺少论文id'})
+    search_body = {
+        "query": {
+            "match": {
+                "id": paper_id
+            }
+        }
+    }
+    result = es_search.body_search("works", search_body)
+    if len(result["hits"]["hits"]) == 0:
+        return JsonResponse({'errno': 1003, 'errmsg': '论文不存在'})
+    result = es_handle.handle_detailed_work(result["hits"]["hits"][0])
+    result = es_handle.star_handle([result], user, 0)[0]
+    return JsonResponse({'errno': 0, 'errmsg': 'success', 'data': result})

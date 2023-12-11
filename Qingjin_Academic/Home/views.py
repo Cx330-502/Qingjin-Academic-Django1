@@ -98,7 +98,9 @@ def user_login(request):
                     'user_id': user.id,
                     'username': user.username,
                     'email': "",
-                    'is_admin': is_admin
+                    'is_admin': is_admin,
+                    'claimed_scholar_id': "",
+                    'claimed_scholar_name': ""
                     }
         else:
             data = {'token': token,
@@ -107,26 +109,61 @@ def user_login(request):
                     'email': user.email,
                     'is_admin': is_admin
                     }
+            claimed_scholar_id = ""
+            claimed_scholar_name = ""
+            if user.claimed_scholar is not None:
+                claimed_scholar_id = user.claimed_scholar.es_id
+                claimed_scholar_name = user.claimed_scholar.name
+            data['claimed_scholar_id'] = claimed_scholar_id
+            data['claimed_scholar_name'] = claimed_scholar_name
         return JsonResponse(
             {'errno': 0, 'errmsg': '登录成功', 'data': data})
     return JsonResponse({'errno': 1003, 'errmsg': '密码错误'})
+
+
+def change_password(request):
+    if request.method != "POST":
+        return JsonResponse({'errno': 1001, 'errmsg': '请求方法错误'})
+    body = json.loads(request.body)
+    email = body.get("email")
+    if email is None:
+        return JsonResponse({'errno': 1002, 'errmsg': '邮箱不能为空'})
+    password = body.get("password")
+    if password is None:
+        return JsonResponse({'errno': 1003, 'errmsg': '密码不能为空'})
+    if User.objects.filter(email=email).exists():
+        user = User.objects.get(email=email)
+        user.password = md5_encrypt(password)
+        user.save()
+        return JsonResponse({'errno': 0, 'errmsg': '修改成功', 'data': {'user_id': user.id, 'username': user.username}})
+    else:
+        return JsonResponse({'errno': 1004, 'errmsg': '邮箱不存在'})
 
 
 def hot_paper(request):
     if request.method != "POST":
         return JsonResponse({'errno': 1001, 'errmsg': '请求方法错误'})
     body = json.loads(request.body)
+    user = auth_token(body.get("token"), False)
+    random_number = random.randint(0, 100)
     search_body = {
         "query": {
-            "match_all": {}  # 可以根据需要修改查询条件
+            "bool": {
+                "must": [
+                    {"range": {"publication_date": {"gte": "2018", "lte": "2023"}}},  # 时间范围查询
+                    {"match_all": {}}  # 其他查询条件
+                ]
+            }
         },
         "sort": [
             {"cited_count": {"order": "desc"}}  # 根据引用量字段降序排序
         ],
+        "from": random_number,  # 从随机数开始获取
         "size": 10  # 获取前十条结果
     }
     result = es_search.body_search(index="works", body=search_body)
     result = es_handle.hot_paper_handle(result)
+    result = es_handle.star_handle(result, user, 0)
     return JsonResponse({'errno': 0, 'errmsg': '查询成功', 'data': result})
 
 
@@ -134,6 +171,8 @@ def hot_institution(request):
     if request.method != "POST":
         return JsonResponse({'errno': 1001, 'errmsg': '请求方法错误'})
     body = json.loads(request.body)
+    user = auth_token(body.get("token"), False)
+    random_number = random.randint(0, 100)
     search_body = {
         "query": {
             "match_all": {}  # 可以根据需要修改查询条件
@@ -141,10 +180,12 @@ def hot_institution(request):
         "sort": [
             {"summary_stats.h_index": {"order": "desc"}}  # 根据活跃度字段降序排序
         ],
+        "from": random_number,  # 从随机数开始获取
         "size": 10  # 获取前十条结果
     }
     result = es_search.body_search(index="institutions", body=search_body)
     result = es_handle.hot_institution_handle(result)
+    result = es_handle.star_handle(result, user, 2)
     return JsonResponse({'errno': 0, 'errmsg': '查询成功', 'data': result})
 
 

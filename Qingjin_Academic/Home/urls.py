@@ -7,6 +7,7 @@ urlpatterns = [
     path('user/captcha', captcha, name='captcha'),
     path('user/register', user_register),
     path('user/login', user_login),
+    path('user/change_password', change_password),
     path('hot_paper', hot_paper),
     path('hot_institution', hot_institution),
     path('delete_history', delete_history),

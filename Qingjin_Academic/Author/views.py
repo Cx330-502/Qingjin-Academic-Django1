@@ -16,6 +16,7 @@ from django.http import JsonResponse
 import json
 from fuzzywuzzy import fuzz
 
+
 # Create your views here.
 
 
@@ -55,12 +56,12 @@ def email_claim(request):
     if user.claimed_scholar is not None:
         return JsonResponse({'errno': 1009, 'errmsg': '用户已认领作者'})
     search_body = {
-            "query": {
-                "match": {
-                    "id": author_id
-                }
+        "query": {
+            "match": {
+                "id": author_id
             }
         }
+    }
     result = es_search.body_search("authors", search_body)
     if len(result["hits"]["hits"]) == 0:
         return JsonResponse({'errno': 1010, 'errmsg': '作者不存在'})
@@ -87,7 +88,7 @@ def email_claim(request):
             data = {"name": scholar.name, "domain": data0}
             return JsonResponse({'errno': 1012, 'errmsg': '邮箱与学者机构不符', 'data': data0})
     scholar.claimed_user_id = user.id
-    if scholar.claim_email is None:
+    if scholar.claim_email is None or scholar.claim_email == "":
         scholar.claim_email = email
     else:
         scholar.claim_email += "," + email
@@ -129,7 +130,7 @@ def other_claim(request):
                     "id": author_id
                 }
             }
-            }
+        }
         result = es_search.body_search("authors", search_body)
         if len(result["hits"]["hits"]) == 0:
             return JsonResponse({'errno': 1006, 'errmsg': '作者不存在'})
@@ -174,6 +175,8 @@ def appeal_author(request):
     if appeal_type == 1 and appeal_email is None:
         return JsonResponse({'errno': 1008, 'errmsg': '缺少邮箱'})
     scholar = Scholar.objects.get(es_id=author_id)
+    if scholar == user.claimed_scholar:
+        return JsonResponse({'errno': 1010, 'errmsg': '不能申诉自己'})
     if appeal_text is None:
         appeal = Appeal(appealed_scholar=scholar, appeal_email=appeal_email)
         appeal.save()
@@ -181,10 +184,112 @@ def appeal_author(request):
     elif appeal_file is None:
         appeal = Appeal(appealed_scholar=scholar, appeal_text=appeal_text, appeal_email=appeal_email)
     else:
-        appeal = Appeal(appealed_scholar=scholar, appeal_text=appeal_text, appeal_file=appeal_file, appeal_email=appeal_email)
+        appeal = Appeal(appealed_scholar=scholar, appeal_text=appeal_text, appeal_file=appeal_file,
+                        appeal_email=appeal_email)
         appeal.save()
         appeal.appeal_file = appeal_file
     appeal.save()
     affair = Affair(appeal=appeal, user=user, type=2, submit_time=datetime.datetime.now(), status=0)
     affair.save()
     return JsonResponse({'errno': 0, 'errmsg': 'success'})
+
+
+def get_author_information(request):
+    if request.method != "POST":
+        return JsonResponse({'errno': 1001, 'errmsg': '请求方法错误'})
+    user = auth_token(request.POST.get("token"), False)
+    body = json.loads(request.body)
+    author_id = body.get("author_id")
+    if author_id is None:
+        return JsonResponse({'errno': 1002, 'errmsg': '缺少作者id'})
+    search_body = {
+        "query": {
+            "match": {
+                "id": author_id
+            }
+        }
+    }
+    result = es_search.body_search("authors", search_body)
+    if len(result["hits"]["hits"]) == 0:
+        return JsonResponse({'errno': 1003, 'errmsg': '作者不存在'})
+    result = es_handle.handle_detailed_author(result["hits"]["hits"][0])
+    undisplayed_works = []
+    if Paper_display.objects.filter(author_id=author_id).exists():
+        undisplayed_works0 = Paper_display.objects.filter(author_id=author_id)
+        for i in range(len(undisplayed_works0)):
+            undisplayed_works.append(undisplayed_works0[i].es_id)
+    result["undisplayed_works"] = undisplayed_works
+    result = es_handle.star_handle([result], user, 1)[0]
+    if user is not None and user is not False:
+        if user.claimed_scholar is not None and user.claimed_scholar.es_id == author_id:
+            result["self"] = True
+        else:
+            result["self"] = False
+    else:
+        result["self"] = False
+    return JsonResponse({'errno': 0, 'errmsg': 'success', 'data': result})
+
+
+def display_work(request):
+    if request.method != "POST":
+        return JsonResponse({'errno': 1001, 'errmsg': '请求方法错误'})
+    body = json.loads(request.body)
+    user = auth_token(body.get("token"), False)
+    if user is None or user is False:
+        return JsonResponse({'errno': 1002, 'errmsg': '登录错误'})
+    author_id = body.get("author_id")
+    if author_id is None:
+        return JsonResponse({'errno': 1003, 'errmsg': '缺少作者id'})
+    paper_id = body.get("paper_id")
+    if paper_id is None:
+        return JsonResponse({'errno': 1004, 'errmsg': '缺少论文id'})
+    if user.claimed_scholar is None or user.claimed_scholar.es_id != author_id:
+        return JsonResponse({'errno': 1005, 'errmsg': '用户未认领该作者'})
+    if Paper_display.objects.filter(es_id=paper_id).exists():
+        paper_display = Paper_display.objects.get(es_id=paper_id)
+        paper_display.delete()
+        return JsonResponse({'errno': 0, 'errmsg': 'success'})
+    else:
+        return JsonResponse({'errno': 1006, 'errmsg': '论文未被隐藏'})
+
+
+def undo_display_work(request):
+    if request.method != "POST":
+        return JsonResponse({'errno': 1001, 'errmsg': '请求方法错误'})
+    body = json.loads(request.body)
+    user = auth_token(body.get("token"), False)
+    if user is None or user is False:
+        return JsonResponse({'errno': 1002, 'errmsg': '登录错误'})
+    author_id = body.get("author_id")
+    if author_id is None:
+        return JsonResponse({'errno': 1003, 'errmsg': '缺少作者id'})
+    paper_id = body.get("paper_id")
+    if paper_id is None:
+        return JsonResponse({'errno': 1004, 'errmsg': '缺少论文id'})
+    if user.claimed_scholar is None or user.claimed_scholar.es_id != author_id:
+        return JsonResponse({'errno': 1005, 'errmsg': '用户未认领该作者'})
+    if Paper_display.objects.filter(es_id=paper_id).exists():
+        return JsonResponse({'errno': 1006, 'errmsg': '论文已被隐藏'})
+    else:
+        paper_display = Paper_display(es_id=paper_id, author_id=author_id)
+        paper_display.save()
+        return JsonResponse({'errno': 0, 'errmsg': 'success'})
+
+
+def author_network(request):
+    if request.method != "POST":
+        return JsonResponse({'errno': 1001, 'errmsg': '请求方法错误'})
+    body = json.loads(request.body)
+    author_id = body.get("author_id")
+    if author_id is None:
+        return JsonResponse({'errno': 1002, 'errmsg': '缺少作者id'})
+    search_body = {
+        "query": {
+            "match": {
+                "author_all": author_id
+            }
+        }
+    }
+    result = es_search.body_search("works", search_body)
+    result = es_handle.handle_network(result["hits"]["hits"], author_id)
+    return JsonResponse({'errno': 0, 'errmsg': 'success', 'data': result})

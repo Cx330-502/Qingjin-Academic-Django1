@@ -12,12 +12,12 @@ data = {
 
 
 class SendEmail:
-    def __init__(self, data, receiver, time, affair_name, username, decison, reason):
+    def __init__(self, data, receiver, time, affair_name, username, decision, reason):
         self.sender = data.get('sender', '')  # 发送者QQ邮箱
         self.receiver = receiver  # 接收者邮箱
         self.password = data.get('password', '')
         self.subject = data.get('subject', '')
-        self.context = {'time': time, 'affair_name': affair_name, 'username': username, 'decison': decison,
+        self.context = {'time': time, 'affair_name': affair_name, 'username': username, 'decision': decision,
                         'reason': reason}
 
     def load_message(self, type0):

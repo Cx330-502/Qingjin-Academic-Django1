@@ -18,10 +18,11 @@ import json
 
 # Create your views here.
 
-def search(request):
+def search0(request):
     if request.method != "POST":
         return JsonResponse({'errno': 1001, 'errmsg': '请求方法错误'})
     body = json.loads(request.body)
+    user = auth_token(body.get('token'), False)
     search_type = body.get('search_type')
     if search_type is None:
         return JsonResponse({'errno': 1002, 'errmsg': '缺少搜索类型'})
@@ -72,4 +73,5 @@ def search(request):
     result = es_search.body_search(search_type0, search_body)
     print(datetime.datetime.now() - time0)
     result = es_handle.handle_search_result(result, search_type, first_search, work_clustering, work_clustering)
+    result['result'] = es_handle.star_handle(result['result'], user, search_type)
     return JsonResponse({'errno': 0, 'errmsg': 'success', 'data': result})

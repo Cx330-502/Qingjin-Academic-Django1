@@ -8,4 +8,5 @@ urlpatterns = [
     path('comment', comment),
     path('get_comment', get_comment),
     path('report_comment_or_paper', report_comment_comment_or_paper),
+    path('get_paper_information', get_paper_information),
 ]
