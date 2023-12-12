@@ -23,6 +23,7 @@ def md5_encrypt(plaintext):
     ciphertext = md5.hexdigest()
     return ciphertext
 
+
 def get_affairs(request):
     if request.method != "POST":
         return JsonResponse({'errno': 1001, 'errmsg': '请求方法错误'})
@@ -285,8 +286,16 @@ def handle_report(request):
                               username=user.username,
                               decision="删除论文",
                               reason=handle_reason).send_email(1)
-        affair.status = -1
-        affair.save()
+        paper_delete = Paper_delete(es_id=affair.report.paper_id)
+        paper_delete.save()
+        affair.delete()
+        stars = Star.objects.filter(paper_id=paper_delete.es_id)
+        for star in stars:
+            star.folder.num -= 1
+            star.delete()
+        histories = History.objects.filter(paper_id=paper_delete.es_id)
+        for history in histories:
+            history.delete()
     return JsonResponse({'errno': 0, 'errmsg': '处理成功'})
 
 
@@ -519,6 +528,7 @@ def domain_evolve(claim_email, claim_email_special, scholar_id):
         else:
             with open(temp, "w", encoding="utf-8") as f:
                 json.dump(data, f)
+
 
 def add_admin(request):
     if request.method != "POST":

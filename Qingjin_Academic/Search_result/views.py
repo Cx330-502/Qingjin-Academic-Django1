@@ -38,10 +38,10 @@ def search0(request):
     if not_list is None:
         not_list = []
     start_time = body.get('start_time')
-    if start_time is None:
+    if start_time is None or start_time == "":
         start_time = 0
     end_time = body.get('end_time')
-    if end_time is None:
+    if end_time is None or end_time == "":
         end_time = 0
     search_body = es_handle.handle_search_list_1(search_type, and_list, or_list, not_list, start_time, end_time)
     first_search = body.get('first_search')

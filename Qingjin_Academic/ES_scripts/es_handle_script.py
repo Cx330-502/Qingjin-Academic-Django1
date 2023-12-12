@@ -1,7 +1,7 @@
 import re
 from datetime import datetime
 import ES_scripts.es_search_script as es_search
-from Academic_models.models import Star, Scholar
+from Academic_models.models import Star, Scholar, Paper_delete
 
 
 def author_all_field_handle(author_all):
@@ -349,6 +349,10 @@ def handle_search_list_1(search_type, and_list, or_list, not_list, start_time, e
                 must_not_list.append({"match": {com_table[search_type][item['select']]: {"query": item['content'],
                                                                                          "fuzziness": "AUTO"}}})
             highlight['fields'][com_table[search_type][item['select']]] = {}
+    if search_type == 0:
+        paper_deletes = Paper_delete.objects.all()
+        for paper_delete in paper_deletes:
+            must_not_list.append({"match": {"id": paper_delete.es_id}})
     if search_type == 0 and (start_time != 0 or end_time != 0):
         temp = {}
         if start_time != 0:

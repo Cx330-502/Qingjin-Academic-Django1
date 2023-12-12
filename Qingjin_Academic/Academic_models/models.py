@@ -112,6 +112,7 @@ class Comment(models.Model):
     comment_time = models.DateTimeField(auto_now=True)
     paper_id = models.CharField(max_length=20, null=False)
     content = models.CharField(max_length=20, null=False)
+    reply_to = models.ForeignKey('self', on_delete=models.CASCADE, null=True)
     top = models.BooleanField(default=False)
 
 
@@ -189,3 +190,6 @@ class Paper_display(models.Model):
     es_id = models.CharField(max_length=20, unique=True, null=False)
     author_id = models.CharField(max_length=20, null=False)
 
+
+class Paper_delete(models.Model):
+    es_id = models.CharField(max_length=20, unique=True, null=False)

@@ -27,7 +27,14 @@ def comment(request):
     content = body.get("content")
     if content is None or content == "":
         return JsonResponse({'errno': 1002, 'errmsg': '请传入合法的评论'})
-    comment0 = Comment(user=user, paper_id=paper_id, content=content)
+    reply_to = body.get("reply_to")
+    if reply_to is not None and not Comment.objects.filter(id=reply_to).exists():
+        return JsonResponse({'errno': 1003, 'errmsg': '回复的评论不存在'})
+    if reply_to is not None:
+        reply_to = Comment.objects.get(id=reply_to)
+        comment0 = Comment(user=user, paper_id=paper_id, content=content, reply_to=reply_to)
+    else:
+        comment0 = Comment(user=user, paper_id=paper_id, content=content)
     comment0.save()
     return JsonResponse({'errno': 0,
                          'errmsg': '评论成功',
@@ -42,9 +49,11 @@ def get_comment(request):
         return JsonResponse({'errno': 1001, 'errmsg': '请求方法错误'})
     body = json.loads(request.body)
     paper_id = body.get("paper_id")
-    comments = Comment.objects.filter(paper_id=paper_id).order_by('-top')
-    return_list = []
+    comments = Comment.objects.filter(paper_id=paper_id).order_by('id')
+    return_table = {}
     for comment0 in comments:
+        if comment0.reply_to is not None:
+            return_table[comment0.reply_to.id]["reply_list"].append(comment0.id)
         is_scholar = False
         author_id = ""
         if comment0.user.claimed_scholar is not None:
@@ -56,11 +65,14 @@ def get_comment(request):
             "user_id": comment0.user.id,
             "comment_time": comment0.comment_time.strftime("%Y-%m-%d %H:%M:%S"),
             "content": comment0.content,
-            "top": comment0.top,
             "is_scholar": is_scholar,
             "author_id": author_id,
+            "reply_list": []
         }
-        return_list.append(data)
+        return_table[comment0.id] = data
+    return_list = []
+    for key in return_table:
+        return_list.append(return_table[key])
     return JsonResponse({'errno': 0,
                          'errmsg': '获取评论成功',
                          'data': return_list})
