@@ -182,9 +182,11 @@ def concept_handle(result_3):
         result_data.append(hit)
     return result_data
 
+
 def cancel_highlight(result):
     result = processed_string = re.sub(r'<em>.*?</em>', '', result)
     return result
+
 
 def paper_handle2(result):
     result_data = []
@@ -290,6 +292,7 @@ com_table = [{
     'Main Author': 'author_main',
     'Main Domain': 'domain_main',
     'ID': 'id',
+    'Referenced Works': 'referenced_works'
 }, {
     'Name': 'display_name',
     'Domain': 'domain',
@@ -1029,4 +1032,3 @@ def handle_network(result, author_id):
         'refer_list': refer_list,
         'referred_list': referred_list
     }
-

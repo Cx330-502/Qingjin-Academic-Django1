@@ -52,13 +52,24 @@ def get_comment(request):
     comments = Comment.objects.filter(paper_id=paper_id).order_by('id')
     return_table = {}
     for comment0 in comments:
-        if comment0.reply_to is not None:
-            return_table[comment0.reply_to.id]["reply_list"].append(comment0.id)
         is_scholar = False
         author_id = ""
         if comment0.user.claimed_scholar is not None:
             is_scholar = True
             author_id = comment0.user.claimed_scholar.es_id
+        if comment0.reply_to is not None:
+            if comment0.reply_to.id in return_table:
+                data = {
+                    "id": comment0.id,
+                    "user": comment0.user.username,
+                    "user_id": comment0.user.id,
+                    "comment_time": comment0.comment_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "content": comment0.content,
+                    "is_scholar": is_scholar,
+                    "author_id": author_id,
+                }
+                return_table[comment0.reply_to.id]['reply_list'].append(data)
+                continue
         data = {
             "id": comment0.id,
             "user": comment0.user.username,
