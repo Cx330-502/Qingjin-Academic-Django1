@@ -197,8 +197,8 @@ def appeal_author(request):
 def get_author_information(request):
     if request.method != "POST":
         return JsonResponse({'errno': 1001, 'errmsg': '请求方法错误'})
-    user = auth_token(request.POST.get("token"), False)
     body = json.loads(request.body)
+    user = auth_token(body.get("token"), False)
     author_id = body.get("author_id")
     if author_id is None:
         return JsonResponse({'errno': 1002, 'errmsg': '缺少作者id'})
@@ -225,8 +225,16 @@ def get_author_information(request):
             result["self"] = True
         else:
             result["self"] = False
+        if user.claimed_scholar is not None:
+            if Scholar.objects.filter(es_id=author_id, claimed_user_id__isnull=False).exists():
+                result["author_email"] = Scholar.objects.get(es_id = author_id).claim_email.split(",")[-1]
+            else:
+                result["author_email"] = ""
+        else:
+            result["author_email"] = ""
     else:
         result["self"] = False
+        result["author_email"] = ""
     return JsonResponse({'errno': 0, 'errmsg': 'success', 'data': result})
 
 

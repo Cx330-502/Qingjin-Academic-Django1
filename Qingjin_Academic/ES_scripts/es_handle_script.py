@@ -61,7 +61,6 @@ def institution_field_handle(institution):
     if institution == '' or institution is None:
         return []
     institution_list = []
-    print(institution)
     institutions = institution.split('|')
     for institution_info in institutions:
         if institution_info == '':
@@ -920,6 +919,10 @@ def handle_detailed_author(result):
     result_data['id'] = result['_source']['id']
     result_data['orcid'] = result['_source'].get('orcid', "")
     result_data['counts_by_year'] = result['_source'].get('counts_by_year', [])
+    if Scholar.objects.filter(es_id=result_data['id'], claimed_user_id__isnull=False).exists():
+        result_data['claimed'] = True
+    else:
+        result_data['claimed'] = False
     return result_data
 
 
