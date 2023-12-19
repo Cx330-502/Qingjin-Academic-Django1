@@ -718,7 +718,7 @@ def handle_search_result(result, search_type, first_search, work_clustering, aut
                     result_data['agg'][0]['data'].append({'raw': item['key'], 'value': item['doc_count']})
             if work_clustering == 2:
                 work_agg = result['aggregations']['source']['buckets']
-                result_data['agg'].append({'name': '来源', 'source': 'source', 'data': []})
+                result_data['agg'].append({'name': '来源', 'text': 'source', 'data': []})
                 for item in work_agg:
                     # temp = item['key'].split(' | ')[0]
                     # temp = temp.split(' & ')
