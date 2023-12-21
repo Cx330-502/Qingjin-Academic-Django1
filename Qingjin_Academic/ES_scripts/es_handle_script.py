@@ -1005,7 +1005,11 @@ def handle_network(result, author_id):
     temp_dict = {}
     for item in co_work_list:
         if item['id'] != author_id:
-            temp_dict[item['id']] = item
+            try:
+                temp_dict[item['id']]['count'] += 1
+            except:
+                temp_dict[item['id']] = item
+                temp_dict[item['id']]['count'] = 1
     co_work_list = []
     for item in temp_dict:
         co_work_list.append(temp_dict[item])
@@ -1022,7 +1026,11 @@ def handle_network(result, author_id):
     temp_dict = {}
     for item in refer_list:
         if item['id'] != author_id:
-            temp_dict[item['id']] = item
+            try:
+                temp_dict[item['id']]['count'] += 1
+            except:
+                temp_dict[item['id']] = item
+                temp_dict[item['id']]['count'] = 1
     refer_list = []
     for item in temp_dict:
         refer_list.append(temp_dict[item])
@@ -1039,10 +1047,17 @@ def handle_network(result, author_id):
     temp_dict = {}
     for item in referred_list:
         if item['id'] != author_id:
-            temp_dict[item['id']] = item
+            try:
+                temp_dict[item['id']]['count'] += 1
+            except:
+                temp_dict[item['id']] = item
+                temp_dict[item['id']]['count'] = 1
     referred_list = []
     for item in temp_dict:
         referred_list.append(temp_dict[item])
+    co_work_list.sort(key=lambda x: x['count'], reverse=True)
+    refer_list.sort(key=lambda x: x['count'], reverse=True)
+    referred_list.sort(key=lambda x: x['count'], reverse=True)
     return {
         'co_work_list': co_work_list,
         'refer_list': refer_list,
