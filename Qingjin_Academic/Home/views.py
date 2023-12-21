@@ -2,7 +2,7 @@ import random
 import base64
 import re
 
-from sparkdesk_web.core import SparkWeb
+from Home.extra_codes.spark import SparkWeb0
 
 import Home.extra_codes.captcha as captchaClass
 import ES_scripts.es_search_script as es_search
@@ -572,23 +572,26 @@ def ai_chat(request):
     question = body.get("question")
     if question is None:
         return JsonResponse({'errno': 1003, 'errmsg': 'question不能为空'})
-    chat_history = user.chat_history
+    chat_history = body.get("chat_history")
     if chat_history is None:
         return JsonResponse({'errno': 1004, 'errmsg': 'chat_history不能为空'})
     if chat_history == 0:
+        user.chat_id = ""
         if user.chat_history is None:
             user.chat_history = ""
+            user.save()
         else:
             if os.path.exists(user.chat_history):
                 os.remove(user.chat_history)
             user.chat_history = ""
     config = json.load(open('./config.json', 'r'))
-    sparkWeb = SparkWeb(
+    sparkWeb = SparkWeb0(
         cookie=config['sparkWeb_cookie'],
         fd=config['sparkWeb_fd'],
         GtToken=config['sparkWeb_GtToken'],
+        ChatID=user.chat_id
     )
-    answer, addr = sparkWeb.rewrite_chat(question=question, history_file_path=user.chat_history)
+    answer, addr, user.chat_id = sparkWeb.rewrite_chat(question=question, history_file_path=user.chat_history)
     user.chat_history = addr
     user.save()
     return JsonResponse({'errno': 0, 'errmsg': '查询成功', 'data': answer})

@@ -100,7 +100,7 @@ def report_comment_comment_or_paper(request):
     comment_id = body.get("comment_id")
     report_text = body.get("report_text")
     report_file = request.FILES.get("report_file")
-    if paper_id is None:
+    if paper_id is None or paper_id == "":
         return JsonResponse({'errno': 1003, 'errmsg': '缺少举报对象'})
     if report_text is None and report_file is None:
         return JsonResponse({'errno': 1004, 'errmsg': '缺少举报内容'})
