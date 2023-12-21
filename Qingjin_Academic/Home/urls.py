@@ -23,4 +23,6 @@ urlpatterns = [
     path('add_history', add_history),
     path('star', star),
 
+    path('get_chat_history', get_chat_history),
+    path('ai_chat', ai_chat),
 ]

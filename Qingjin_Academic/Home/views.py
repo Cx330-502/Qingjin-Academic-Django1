@@ -1,6 +1,9 @@
 import random
 import base64
 import re
+
+from sparkdesk_web.core import SparkWeb
+
 import Home.extra_codes.captcha as captchaClass
 import ES_scripts.es_search_script as es_search
 import ES_scripts.es_handle_script as es_handle
@@ -544,3 +547,48 @@ def star(request):
     star0 = Star(user=user, paper_id=paper_id, type=type, folder=folder)
     star0.save()
     return JsonResponse({'errno': 0, 'errmsg': '收藏成功', 'data': {'star_id': star0.id}})
+
+
+def get_chat_history(request):
+    if request.method != "POST":
+        return JsonResponse({'errno': 1001, 'errmsg': '请求方法错误'})
+    body = json.loads(request.body)
+    user = auth_token(body.get("token"), False)
+    if user is None or user is False:
+        return JsonResponse({'errno': 1002, 'errmsg': '登录错误'})
+    chat_history = []
+    if user.chat_history != "":
+        chat_history = json.load(open(user.chat_history, 'r', encoding='utf-8'))
+    return JsonResponse({'errno': 0, 'errmsg': '查询成功', 'data': chat_history})
+
+
+def ai_chat(request):
+    if request.method != "POST":
+        return JsonResponse({'errno': 1001, 'errmsg': '请求方法错误'})
+    body = json.loads(request.body)
+    user = auth_token(body.get("token"), False)
+    if user is None or user is False:
+        return JsonResponse({'errno': 1002, 'errmsg': '登录错误'})
+    question = body.get("question")
+    if question is None:
+        return JsonResponse({'errno': 1003, 'errmsg': 'question不能为空'})
+    chat_history = user.chat_history
+    if chat_history is None:
+        return JsonResponse({'errno': 1004, 'errmsg': 'chat_history不能为空'})
+    if chat_history == 0:
+        if user.chat_history is None:
+            user.chat_history = ""
+        else:
+            if os.path.exists(user.chat_history):
+                os.remove(user.chat_history)
+            user.chat_history = ""
+    config = json.load(open('./config.json', 'r'))
+    sparkWeb = SparkWeb(
+        cookie=config['sparkWeb_cookie'],
+        fd=config['sparkWeb_fd'],
+        GtToken=config['sparkWeb_GtToken'],
+    )
+    answer, addr = sparkWeb.rewrite_chat(question=question, history_file_path=user.chat_history)
+    user.chat_history = addr
+    user.save()
+    return JsonResponse({'errno': 0, 'errmsg': '查询成功', 'data': answer})

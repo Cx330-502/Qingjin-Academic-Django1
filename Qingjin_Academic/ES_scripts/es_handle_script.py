@@ -642,6 +642,11 @@ agg_table = [
             "terms": {"field": "domain_main.keyword"}  # 聚合领域信息
         }
     },
+    {  # works
+        "type_num": {
+            "terms": {"field": "type_num"}  # 聚合领域信息
+        }
+    }
 ]
 
 
@@ -661,6 +666,8 @@ def handle_search_list_2(search_body, search_type, first_search, work_clustering
             search_body["aggs"] = agg_table[6]
         if search_type == 0 and work_clustering == 3:  # 领域聚合
             search_body["aggs"] = agg_table[7]
+        if search_type == 0 and work_clustering == 4:
+            search_body["aggs"] = agg_table[8]          # 种类聚合
     return search_body, search_type_table[search_type]
 
 
@@ -733,6 +740,12 @@ def handle_search_result(result, search_type, first_search, work_clustering, aut
                     # temp = temp.split(' & ')
                     # result_data['agg'][0]['data'].append({'name': temp[0], 'id': temp[1],
                     #                                       'level': temp[2], 'value': item['doc_count']})
+                    result_data['agg'][0]['data'].append({'raw': item['key'], 'value': item['doc_count']})
+            if work_clustering == 4:
+                work_agg = result['aggregations']['type_num']['buckets']
+                result_data['agg'].append({'name': '种类', 'text': 'type_num', 'data': []})
+                for item in work_agg:
+                    # result_data['agg'][0]['data'].append({'name': item['key'], 'value': item['doc_count']})
                     result_data['agg'][0]['data'].append({'raw': item['key'], 'value': item['doc_count']})
         elif search_type == 1:
             if author_clustering == 0:
