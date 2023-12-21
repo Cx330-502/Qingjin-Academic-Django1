@@ -706,7 +706,7 @@ def handle_search_result(result, search_type, first_search, work_clustering, aut
         if search_type == 0:
             if work_clustering == 0:
                 work_agg = result['aggregations']['publication_date']['buckets']
-                result_data['agg'].append({'name': '发表时间', 'text': 'publication_date', 'data': []})
+                result_data['agg'].append({'name': 'Publication Date', 'text': 'publication_date', 'data': []})
                 for item in work_agg:
                     # iso_date = datetime.fromisoformat(item['key_as_string'][:-1])
                     # time0 = iso_date.strftime("%Y")
@@ -717,7 +717,7 @@ def handle_search_result(result, search_type, first_search, work_clustering, aut
                                                           'value': item['doc_count']})
             if work_clustering == 1:
                 work_agg = result['aggregations']['author_main']['buckets']
-                result_data['agg'].append({'name': '主要作者', 'text': 'author_main', 'data': []})
+                result_data['agg'].append({'name': 'Main Author', 'text': 'author_main', 'data': []})
                 for item in work_agg:
                     # temp = item['key'].split(' | ')[0]
                     # temp = temp.split(' & ')
@@ -725,7 +725,7 @@ def handle_search_result(result, search_type, first_search, work_clustering, aut
                     result_data['agg'][0]['data'].append({'raw': item['key'], 'value': item['doc_count']})
             if work_clustering == 2:
                 work_agg = result['aggregations']['source']['buckets']
-                result_data['agg'].append({'name': '来源', 'text': 'source', 'data': []})
+                result_data['agg'].append({'name': 'Source', 'text': 'source', 'data': []})
                 for item in work_agg:
                     # temp = item['key'].split(' | ')[0]
                     # temp = temp.split(' & ')
@@ -734,7 +734,7 @@ def handle_search_result(result, search_type, first_search, work_clustering, aut
                     result_data['agg'][0]['data'].append({'raw': item['key'], 'value': item['doc_count']})
             if work_clustering == 3:
                 work_agg = result['aggregations']['domain_main']['buckets']
-                result_data['agg'].append({'name': '主要领域', 'text': 'domain_main', 'data': []})
+                result_data['agg'].append({'name': 'Main Domain', 'text': 'domain_main', 'data': []})
                 for item in work_agg:
                     # temp = item['key'].split(' | ')[0]
                     # temp = temp.split(' & ')
@@ -743,20 +743,20 @@ def handle_search_result(result, search_type, first_search, work_clustering, aut
                     result_data['agg'][0]['data'].append({'raw': item['key'], 'value': item['doc_count']})
             if work_clustering == 4:
                 work_agg = result['aggregations']['type_num']['buckets']
-                result_data['agg'].append({'name': '种类', 'text': 'type_num', 'data': []})
+                result_data['agg'].append({'name': 'Type', 'text': 'type_num', 'data': []})
                 for item in work_agg:
                     # result_data['agg'][0]['data'].append({'name': item['key'], 'value': item['doc_count']})
                     result_data['agg'][0]['data'].append({'raw': item['key'], 'value': item['doc_count']})
         elif search_type == 1:
             if author_clustering == 0:
                 author_agg = result['aggregations']['display_name']['buckets']
-                result_data['agg'].append({'name': '作者', 'text': 'display_name', 'data': []})
+                result_data['agg'].append({'name': 'Name', 'text': 'display_name', 'data': []})
                 for item in author_agg:
                     # temp = item['key'].split(' & ')
                     # result_data['agg'][0]['data'].append({'name': temp[0], 'id': temp[1], 'value': item['doc_count']})
                     result_data['agg'][0]['data'].append({'raw': item['key'], 'value': item['doc_count']})
                 institution_agg = result['aggregations']['institution']['buckets']
-                result_data['agg'].append({'name': '机构', 'text': 'institution', 'data': []})
+                result_data['agg'].append({'name': 'Institution', 'text': 'institution', 'data': []})
                 for item in institution_agg:
                     # temp = item['key'].split(' | ')[0]
                     # temp = temp.split(' & ')
@@ -765,7 +765,7 @@ def handle_search_result(result, search_type, first_search, work_clustering, aut
                     result_data['agg'][1]['data'].append({'raw': item['key'], 'value': item['doc_count']})
             if author_clustering == 1:
                 author_agg = result['aggregations']['domain']['buckets']
-                result_data['agg'].append({'name': '领域', 'text': 'domain', 'data': []})
+                result_data['agg'].append({'name': 'Domain', 'text': 'domain', 'data': []})
                 for item in author_agg:
                     # temp = item['key'].split(' | ')[0]
                     # temp = temp.split(' & ')
@@ -774,17 +774,17 @@ def handle_search_result(result, search_type, first_search, work_clustering, aut
                     result_data['agg'][0]['data'].append({'raw': item['key'], 'value': item['doc_count']})
         elif search_type == 2:
             institution_agg = result['aggregations']['country_code']['buckets']
-            result_data['agg'].append({'name': '国家', 'text': 'country_code', 'data': []})
+            result_data['agg'].append({'name': 'Country Code', 'text': 'country_code', 'data': []})
             for item in institution_agg:
                 # result_data['agg'][0]['data'].append({'name': item['key'], 'value': item['doc_count']})
                 result_data['agg'][0]['data'].append({'raw': item['key'], 'value': item['doc_count']})
             institution_agg = result['aggregations']['type']['buckets']
-            result_data['agg'].append({'name': '机构类型', 'text': 'type', 'data': []})
+            result_data['agg'].append({'name': 'Institution Type', 'text': 'type', 'data': []})
             for item in institution_agg:
                 # result_data['agg'][1]['data'].append({'name': item['key'], 'value': item['doc_count']})
                 result_data['agg'][1]['data'].append({'raw': item['key'], 'value': item['doc_count']})
             institution_agg = result['aggregations']['domain_main']['buckets']
-            result_data['agg'].append({'name': '主要领域', 'text': 'domain_main', 'data': []})
+            result_data['agg'].append({'name': 'Main Domain', 'text': 'domain_main', 'data': []})
             for item in institution_agg:
                 # temp = item['key'].split(' | ')[0]
                 # temp = temp.split(' & ')
@@ -793,7 +793,7 @@ def handle_search_result(result, search_type, first_search, work_clustering, aut
                 result_data['agg'][2]['data'].append({'raw': item['key'], 'value': item['doc_count']})
         elif search_type == 3:
             concept_agg = result['aggregations']['level']['buckets']
-            result_data['agg'].append({'name': '学科等级', 'text': 'level', 'data': []})
+            result_data['agg'].append({'name': 'Level', 'text': 'level', 'data': []})
             for item in concept_agg:
                 # result_data['agg'][0]['data'].append({'name': item['key'], 'value': item['doc_count']})
                 result_data['agg'][0]['data'].append({'raw': item['key'], 'value': item['doc_count']})
