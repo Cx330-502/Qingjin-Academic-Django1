@@ -25,4 +25,5 @@ urlpatterns = [
 
     path('get_chat_history', get_chat_history),
     path('ai_chat', ai_chat),
+    path('clear_ai_history', clear_ai_history)
 ]

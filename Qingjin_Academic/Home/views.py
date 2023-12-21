@@ -595,3 +595,22 @@ def ai_chat(request):
     user.chat_history = addr
     user.save()
     return JsonResponse({'errno': 0, 'errmsg': '查询成功', 'data': answer})
+
+def clear_ai_history(request):
+    if request.method != "POST":
+        return JsonResponse({'errno': 1001, 'errmsg': '请求方法错误'})
+    body = json.loads(request.body)
+    user = auth_token(body.get("token"), False)
+    if user is None or user is False:
+        return JsonResponse({'errno': 1002, 'errmsg': '登录错误'})
+    if user.chat_history is None:
+        user.chat_history = ""
+        user.chat_id = ""
+        user.save()
+    else:
+        if os.path.exists(user.chat_history):
+            os.remove(user.chat_history)
+        user.chat_history = ""
+        user.chat_id = ""
+        user.save()
+    return JsonResponse({'errno': 0, 'errmsg': '清除成功'})
