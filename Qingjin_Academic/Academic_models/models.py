@@ -60,6 +60,7 @@ class User(models.Model):
     email = models.CharField(max_length=50, unique=True, null=False)
     claimed_scholar = models.ForeignKey(Scholar, on_delete=models.CASCADE, null=True)
     chat_history = models.CharField(max_length=100, null=False, default="")
+    chat_id = models.CharField(max_length=100, null=False, default="")
 
     def create_token(self, timeout):
         salt = settings.SECRET_KEY
