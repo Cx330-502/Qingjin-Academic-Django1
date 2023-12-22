@@ -713,9 +713,9 @@ def handle_search_result(result, search_type, first_search, work_clustering, aut
                     # result_data['agg'][0]['data'].append({'time': time0, 'value': item['doc_count']})
                     iso_date = datetime.fromisoformat(item['key_as_string'][:-1])
                     time0 = iso_date.strftime("%Y")
-                    result_data['agg'][0]['data'].append({'raw': time0,
-                                                          'value': item['doc_count']})
-
+                    if item['doc_count'] > 0:
+                        result_data['agg'][0]['data'].append({'raw': time0,
+                                                              'value': item['doc_count']})
             if work_clustering == 1:
                 work_agg = result['aggregations']['author_main']['buckets']
                 result_data['agg'].append({'name': 'Main Author', 'text': 'author_main', 'data': []})
@@ -723,7 +723,8 @@ def handle_search_result(result, search_type, first_search, work_clustering, aut
                     # temp = item['key'].split(' | ')[0]
                     # temp = temp.split(' & ')
                     # result_data['agg'][0]['data'].append({'name': temp[0], 'id': temp[1], 'value': item['doc_count']})
-                    result_data['agg'][0]['data'].append({'raw': item['key'], 'value': item['doc_count']})
+                    if item['doc_count'] > 0:
+                        result_data['agg'][0]['data'].append({'raw': item['key'], 'value': item['doc_count']})
             if work_clustering == 2:
                 work_agg = result['aggregations']['source']['buckets']
                 result_data['agg'].append({'name': 'Source', 'text': 'source', 'data': []})
@@ -732,7 +733,8 @@ def handle_search_result(result, search_type, first_search, work_clustering, aut
                     # temp = temp.split(' & ')
                     # result_data['agg'][0]['data'].append({'name': temp[0], 'type': temp[1],
                     #                                       'id': temp[2], 'value': item['doc_count']})
-                    result_data['agg'][0]['data'].append({'raw': item['key'], 'value': item['doc_count']})
+                    if item['doc_count'] > 0:
+                        result_data['agg'][0]['data'].append({'raw': item['key'], 'value': item['doc_count']})
             if work_clustering == 3:
                 work_agg = result['aggregations']['domain_main']['buckets']
                 result_data['agg'].append({'name': 'Main Domain', 'text': 'domain_main', 'data': []})
@@ -741,13 +743,15 @@ def handle_search_result(result, search_type, first_search, work_clustering, aut
                     # temp = temp.split(' & ')
                     # result_data['agg'][0]['data'].append({'name': temp[0], 'id': temp[1],
                     #                                       'level': temp[2], 'value': item['doc_count']})
-                    result_data['agg'][0]['data'].append({'raw': item['key'], 'value': item['doc_count']})
+                    if item['doc_count'] > 0:
+                        result_data['agg'][0]['data'].append({'raw': item['key'], 'value': item['doc_count']})
             if work_clustering == 4:
                 work_agg = result['aggregations']['type_num']['buckets']
                 result_data['agg'].append({'name': 'Type', 'text': 'type_num', 'data': []})
                 for item in work_agg:
                     # result_data['agg'][0]['data'].append({'name': item['key'], 'value': item['doc_count']})
-                    result_data['agg'][0]['data'].append({'raw': item['key'], 'value': item['doc_count']})
+                    if item['doc_count'] > 0:
+                        result_data['agg'][0]['data'].append({'raw': item['key'], 'value': item['doc_count']})
         elif search_type == 1:
             if author_clustering == 0:
                 author_agg = result['aggregations']['display_name']['buckets']
@@ -755,7 +759,8 @@ def handle_search_result(result, search_type, first_search, work_clustering, aut
                 for item in author_agg:
                     # temp = item['key'].split(' & ')
                     # result_data['agg'][0]['data'].append({'name': temp[0], 'id': temp[1], 'value': item['doc_count']})
-                    result_data['agg'][0]['data'].append({'raw': item['key'], 'value': item['doc_count']})
+                    if item['doc_count'] > 0:
+                        result_data['agg'][0]['data'].append({'raw': item['key'], 'value': item['doc_count']})
                 institution_agg = result['aggregations']['institution']['buckets']
                 result_data['agg'].append({'name': 'Institution', 'text': 'institution', 'data': []})
                 for item in institution_agg:
@@ -763,7 +768,8 @@ def handle_search_result(result, search_type, first_search, work_clustering, aut
                     # temp = temp.split(' & ')
                     # result_data['agg'][1]['data'].append({'name': temp[0], 'id': temp[1], 'type': temp[2],
                     #                                       'value': item['doc_count']})
-                    result_data['agg'][1]['data'].append({'raw': item['key'], 'value': item['doc_count']})
+                    if item['doc_count'] > 0:
+                        result_data['agg'][1]['data'].append({'raw': item['key'], 'value': item['doc_count']})
             if author_clustering == 1:
                 author_agg = result['aggregations']['domain']['buckets']
                 result_data['agg'].append({'name': 'Domain', 'text': 'domain', 'data': []})
@@ -772,18 +778,21 @@ def handle_search_result(result, search_type, first_search, work_clustering, aut
                     # temp = temp.split(' & ')
                     # result_data['agg'][0]['data'].append({'name': temp[0], 'id': temp[1],
                     #                                       'level': temp[2], 'value': item['doc_count']})
-                    result_data['agg'][0]['data'].append({'raw': item['key'], 'value': item['doc_count']})
+                    if item['doc_count'] > 0:
+                        result_data['agg'][0]['data'].append({'raw': item['key'], 'value': item['doc_count']})
         elif search_type == 2:
             institution_agg = result['aggregations']['country_code']['buckets']
             result_data['agg'].append({'name': 'Country Code', 'text': 'country_code', 'data': []})
             for item in institution_agg:
                 # result_data['agg'][0]['data'].append({'name': item['key'], 'value': item['doc_count']})
-                result_data['agg'][0]['data'].append({'raw': item['key'], 'value': item['doc_count']})
+                if item['doc_count'] > 0:
+                    result_data['agg'][0]['data'].append({'raw': item['key'], 'value': item['doc_count']})
             institution_agg = result['aggregations']['type']['buckets']
             result_data['agg'].append({'name': 'Institution Type', 'text': 'type', 'data': []})
             for item in institution_agg:
                 # result_data['agg'][1]['data'].append({'name': item['key'], 'value': item['doc_count']})
-                result_data['agg'][1]['data'].append({'raw': item['key'], 'value': item['doc_count']})
+                if item['doc_count'] > 0:
+                    result_data['agg'][1]['data'].append({'raw': item['key'], 'value': item['doc_count']})
             institution_agg = result['aggregations']['domain_main']['buckets']
             result_data['agg'].append({'name': 'Main Domain', 'text': 'domain_main', 'data': []})
             for item in institution_agg:
@@ -791,15 +800,18 @@ def handle_search_result(result, search_type, first_search, work_clustering, aut
                 # temp = temp.split(' & ')
                 # result_data['agg'][2]['data'].append({'name': temp[0], 'id': temp[1],
                 #                                       'level': temp[2], 'value': item['doc_count']})
-                result_data['agg'][2]['data'].append({'raw': item['key'], 'value': item['doc_count']})
+                if item['doc_count'] > 0:
+                    result_data['agg'][2]['data'].append({'raw': item['key'], 'value': item['doc_count']})
         elif search_type == 3:
             concept_agg = result['aggregations']['level']['buckets']
             result_data['agg'].append({'name': 'Level', 'text': 'level', 'data': []})
             for item in concept_agg:
                 # result_data['agg'][0]['data'].append({'name': item['key'], 'value': item['doc_count']})
-                result_data['agg'][0]['data'].append({'raw': item['key'], 'value': item['doc_count']})
+                if item['doc_count'] > 0:
+                    result_data['agg'][0]['data'].append({'raw': item['key'], 'value': item['doc_count']})
         for i in range(len(result_data['agg'])):
-            result_data['agg'][i]['data'].sort(key=lambda x: x['value'], reverse=True)
+            if len(result_data['agg'][i]['data']) > 0:
+                result_data['agg'][i]['data'].sort(key=lambda x: x['value'], reverse=True)
     return result_data
 
 
