@@ -135,7 +135,7 @@ def hot_institution_handle(result):
         hit['id'] = hit0['_source']['id']
         hit['image_url'] = hit0['_source'].get('image_url', "")
         hit['ror'] = hit0['_source']['ror']
-        hit['summary_stats'] = hit0['_source']['summary_stats']
+        hit['summary_stats'] = handle_summary_stats(hit0['_source']['summary_stats'])
         result_data.append(hit)
     return result_data
 
@@ -153,7 +153,7 @@ def author_handle(result_1):
         hit['id'] = hit0['_source']['id']
         hit['most_cited_work'] = hit0['_source'].get('most_cited_work', "")
         hit['cited_by_count'] = hit0['_source']['cited_by_count']
-        hit['summary_stats'] = hit0['_source']['summary_stats']
+        hit['summary_stats'] = handle_summary_stats(hit0['_source']['summary_stats'])
         hit['orcid'] = hit0['_source'].get('orcid', "")
         if Scholar.objects.filter(es_id=hit['id'], claimed_user_id__isnull=False).exists():
             hit['claimed'] = True
@@ -175,7 +175,7 @@ def concept_handle(result_3):
         hit['display_name'] = hit0['_source']['display_name']
         hit['id'] = hit0['_source']['id']
         hit['description'] = hit0['_source'].get('description', "")
-        hit['summary_stats'] = hit0['_source']['summary_stats']
+        hit['summary_stats'] = handle_summary_stats(hit0['_source']['summary_stats'])
         hit['level'] = hit0['_source']['level']
         hit['image_url'] = hit0['_source'].get('image_url', "")
         result_data.append(hit)
@@ -225,7 +225,7 @@ def institution_handle2(result):
         hit['country_code'] = hit0['_source'].get('country_code', "")
         hit['image_url'] = hit0['_source'].get('image_url', "")
         hit['id'] = cancel_highlight(hit0['_source']['id'])
-        hit['summary_stats'] = hit0['_source']['summary_stats']
+        hit['summary_stats'] = handle_summary_stats(hit0['_source']['summary_stats'])
         hit['homepage_url'] = hit0['_source'].get('homepage_url', "")
         hit['type'] = hit0['_source'].get('type', "")
         hit['domain'] = domain_field_handle(hit0['_source']['domain'])
@@ -249,7 +249,7 @@ def author_handle2(result_1):
         hit['institution'] = institution_field_handle(hit0['_source'].get('institution', ""))
         hit['most_cited_work'] = hit0['_source'].get('most_cited_work', "")
         hit['cited_by_count'] = hit0['_source']['cited_by_count']
-        hit['summary_stats'] = hit0['_source']['summary_stats']
+        hit['summary_stats'] = handle_summary_stats(hit0['_source']['summary_stats'])
         hit['id'] = cancel_highlight(hit0['_source']['id'])
         hit['orcid'] = hit0['_source'].get('orcid', "")
         if Scholar.objects.filter(es_id=hit['id'], claimed_user_id__isnull=False).exists():
@@ -273,7 +273,7 @@ def concept_handle2(result_3):
         hit['display_name'] = hit0['_source']['display_name']
         hit['description'] = hit0['_source'].get('description', "")
         hit['id'] = cancel_highlight(hit0['_source']['id'])
-        hit['summary_stats'] = hit0['_source']['summary_stats']
+        hit['summary_stats'] = handle_summary_stats(hit0['_source']['summary_stats'])
         hit['level'] = hit0['_source']['level']
         hit['image_url'] = hit0['_source'].get('image_url', "")
         hit['ancestors'] = hit0['_source'].get('ancestors', "")
@@ -667,7 +667,7 @@ def handle_search_list_2(search_body, search_type, first_search, work_clustering
         if search_type == 0 and work_clustering == 3:  # 领域聚合
             search_body["aggs"] = agg_table[7]
         if search_type == 0 and work_clustering == 4:
-            search_body["aggs"] = agg_table[8]          # 种类聚合
+            search_body["aggs"] = agg_table[8]  # 种类聚合
     return search_body, search_type_table[search_type]
 
 
@@ -928,7 +928,7 @@ def handle_detailed_author(result):
     result_data['institution'] = institution_field_handle(result['_source'].get('institution', ""))
     result_data['most_cited_work'] = result['_source'].get('most_cited_work', "")
     result_data['cited_by_count'] = result['_source']['cited_by_count']
-    result_data['summary_stats'] = result['_source']['summary_stats']
+    result_data['summary_stats'] = handle_summary_stats(result['_source']['summary_stats'])
     result_data['id'] = result['_source']['id']
     result_data['orcid'] = result['_source'].get('orcid', "")
     result_data['counts_by_year'] = result['_source'].get('counts_by_year', [])
@@ -946,7 +946,7 @@ def handle_detailed_institution(result):
     result_data['country_code'] = result['_source'].get('country_code', "")
     result_data['image_url'] = result['_source'].get('image_url', "")
     result_data['id'] = result['_source']['id']
-    result_data['summary_stats'] = result['_source']['summary_stats']
+    result_data['summary_stats'] = handle_summary_stats(result['_source']['summary_stats'])
     result_data['homepage_url'] = result['_source'].get('homepage_url', "")
     result_data['type'] = result['_source'].get('type', "")
     result_data['domain'] = domain_field_handle(result['_source']['domain'])
@@ -963,7 +963,7 @@ def handle_detailed_concept(result):
     result_data['display_name'] = result['_source']['display_name']
     result_data['description'] = result['_source'].get('description', "")
     result_data['id'] = result['_source']['id']
-    result_data['summary_stats'] = result['_source']['summary_stats']
+    result_data['summary_stats'] = handle_summary_stats(result['_source']['summary_stats'])
     result_data['level'] = result['_source']['level']
     result_data['image_url'] = result['_source'].get('image_url', "")
     result_data['ancestors'] = result['_source'].get('ancestors', "")
@@ -1063,3 +1063,21 @@ def handle_network(result, author_id):
         'refer_list': refer_list,
         'referred_list': referred_list
     }
+
+
+def handle_summary_stats(summary_stats):
+    summary_stats0 = {}
+    for key, value in summary_stats.items():
+        if key == "2yr_i10_index":
+            summary_stats0['yr2_i10_index'] = value
+        elif key == "2yr_mean_citedness":
+            summary_stats0['yr2_mean_citedness'] = value
+        elif key == "2yr_works_count":
+            summary_stats0['yr2_works_count'] = value
+        elif key == "2yr_cited_by_count":
+            summary_stats0['yr2_cited_by_count'] = value
+        elif key == "2yr_h_index":
+            summary_stats0['yr2_h_index'] = value
+        else:
+            summary_stats0[key] = value
+    return summary_stats0

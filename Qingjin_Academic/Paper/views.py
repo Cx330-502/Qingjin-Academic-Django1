@@ -32,8 +32,7 @@ def comment(request):
         return JsonResponse({'errno': 1003, 'errmsg': '回复的评论不存在'})
     if reply_to is not None:
         reply_to = Comment.objects.get(id=reply_to)
-        if reply_to.reply_to is not None:
-            comment0 = Comment(user=user, paper_id=paper_id, content=content, reply_to=reply_to)
+        comment0 = Comment(user=user, paper_id=paper_id, content=content, reply_to=reply_to)
     else:
         comment0 = Comment(user=user, paper_id=paper_id, content=content)
     comment0.save()
