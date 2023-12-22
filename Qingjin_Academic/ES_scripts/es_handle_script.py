@@ -677,7 +677,7 @@ def handle_search_list_3(search_body, extend_list):
         text = extend_list[i]['text']
         value = extend_list[i]['value']
         if text == "publication_date":
-            value_list.append(value)
+            value_list.append(int(value))
         else:
             search_body['query']['bool']['filter'].append({"term": {text: value}})
         # search_body['highlight']['fields'][text] = {}
