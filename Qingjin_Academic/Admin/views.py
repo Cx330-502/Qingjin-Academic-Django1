@@ -543,7 +543,7 @@ def add_admin(request):
         return JsonResponse({'errno': 1003, 'errmsg': '缺少用户名'})
     if password is None:
         return JsonResponse({'errno': 1004, 'errmsg': '缺少密码'})
-    if Admin.objects.filter(username=username).exists():
+    if Admin.objects.filter(username=username).exists() or User.objects.filter(username=username).exists():
         return JsonResponse({'errno': 1005, 'errmsg': '用户名已存在'})
     admin = Admin(username=username, password=md5_encrypt(password))
     admin.save()

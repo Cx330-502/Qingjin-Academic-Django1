@@ -64,7 +64,7 @@ def user_register(request):
         return JsonResponse({'errno': 1004, 'errmsg': '邮箱不能为空'})
     if not re.match(r"^[a-zA-Z0-9\u4e00-\u9fa5_-]{2,16}$", username):
         return JsonResponse({'errno': 1005, 'errmsg': '用户名不符合规范'})
-    if User.objects.filter(username=username).exists():
+    if User.objects.filter(username=username).exists() or Admin.objects.filter(username=username).exists():
         return JsonResponse({'errno': 1007, 'errmsg': '用户名已存在'})
     if User.objects.filter(email=email).exists():
         return JsonResponse({'errno': 1008, 'errmsg': '邮箱已存在'})
