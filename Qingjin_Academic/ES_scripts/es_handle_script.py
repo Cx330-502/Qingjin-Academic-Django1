@@ -183,6 +183,7 @@ def concept_handle(result_3):
 
 
 def cancel_highlight(result):
+    result = str(result)
     result = processed_string = re.sub(r'<em>.*?</em>', '', result)
     return result
 
@@ -600,7 +601,7 @@ agg_table = [
     },
     {
         "level": {
-            "terms": {"field": "level.keyword"}  # 聚合领域信息
+            "terms": {"field": "level"}  # 聚合领域信息
         }
     },
     {  # author
@@ -678,8 +679,10 @@ def handle_search_list_3(search_body, extend_list):
         value = extend_list[i]['value']
         if text == "publication_date":
             value_list.append(int(value))
-        else:
+        elif text == "level" or text == "type_num":
             search_body['query']['bool']['filter'].append({"term": {text: value}})
+        else:
+            search_body['query']['bool']['filter'].append({"term": {text + ".keyword": value}})
         # search_body['highlight']['fields'][text] = {}
     if len(value_list) > 0:
         search_body['query']['bool']['filter'].append({"bool": {"should": [], "minimum_should_match": 1}})
