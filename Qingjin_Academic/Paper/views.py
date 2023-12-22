@@ -33,8 +33,7 @@ def comment(request):
     if reply_to is not None:
         reply_to = Comment.objects.get(id=reply_to)
         if reply_to.reply_to is not None:
-            return JsonResponse({'errno': 1004, 'errmsg': '不能回复回复'})
-        comment0 = Comment(user=user, paper_id=paper_id, content=content, reply_to=reply_to)
+            comment0 = Comment(user=user, paper_id=paper_id, content=content, reply_to=reply_to)
     else:
         comment0 = Comment(user=user, paper_id=paper_id, content=content)
     comment0.save()
@@ -60,7 +59,14 @@ def get_comment(request):
             is_scholar = True
             author_id = comment0.user.claimed_scholar.es_id
         if comment0.reply_to is not None:
-            if comment0.reply_to.id in return_table:
+            if comment0.reply_to.reply_to is not None:
+                return_user_name = comment0.reply_to.user.username
+            else:
+                return_user_name = ""
+            temp = comment0.reply_to
+            while temp.reply_to is not None:
+                temp = temp.reply_to
+            if temp.id in return_table:
                 data = {
                     "id": comment0.id,
                     "user": comment0.user.username,
@@ -69,8 +75,9 @@ def get_comment(request):
                     "content": comment0.content,
                     "is_scholar": is_scholar,
                     "author_id": author_id,
+                    "reply_to": return_user_name
                 }
-                return_table[comment0.reply_to.id]['reply_list'].append(data)
+                return_table[temp.id]['reply_list'].append(data)
                 continue
         data = {
             "id": comment0.id,
@@ -89,6 +96,25 @@ def get_comment(request):
     return JsonResponse({'errno': 0,
                          'errmsg': '获取评论成功',
                          'data': return_list})
+
+
+def delete_comment(request):
+    if request.method != "POST":
+        return JsonResponse({'errno': 1001, 'errmsg': '请求方法错误'})
+    body = json.loads(request.body)
+    user = auth_token(body.get("token"), False)
+    if user is None or user is False:
+        return JsonResponse({'errno': 1002, 'errmsg': '登录错误'})
+    comment_id = body.get("comment_id")
+    if comment_id is None or comment_id == "":
+        return JsonResponse({'errno': 1003, 'errmsg': '缺少评论id'})
+    if not Comment.objects.filter(id=comment_id).exists():
+        return JsonResponse({'errno': 1004, 'errmsg': '评论不存在'})
+    comment0 = Comment.objects.get(id=comment_id)
+    if comment0.user != user:
+        return JsonResponse({'errno': 1005, 'errmsg': '无权限删除评论'})
+    comment0.delete()
+    return JsonResponse({'errno': 0, 'errmsg': '删除评论成功'})
 
 
 def report_comment_comment_or_paper(request):
