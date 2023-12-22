@@ -715,6 +715,7 @@ def handle_search_result(result, search_type, first_search, work_clustering, aut
                     time0 = iso_date.strftime("%Y")
                     result_data['agg'][0]['data'].append({'raw': time0,
                                                           'value': item['doc_count']})
+
             if work_clustering == 1:
                 work_agg = result['aggregations']['author_main']['buckets']
                 result_data['agg'].append({'name': 'Main Author', 'text': 'author_main', 'data': []})
@@ -797,6 +798,8 @@ def handle_search_result(result, search_type, first_search, work_clustering, aut
             for item in concept_agg:
                 # result_data['agg'][0]['data'].append({'name': item['key'], 'value': item['doc_count']})
                 result_data['agg'][0]['data'].append({'raw': item['key'], 'value': item['doc_count']})
+        for i in range(len(result_data['agg'])):
+            result_data['agg'][i]['data'].sort(key=lambda x: x['value'], reverse=True)
     return result_data
 
 
