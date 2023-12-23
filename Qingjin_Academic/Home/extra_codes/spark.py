@@ -218,7 +218,7 @@ class SparkWeb0:
                         answer = decode(encoded_data).replace('\n\n', '\n')
                         response_text += answer
             # If False, regenerate the chat
-            return_data['answer'] = response_text if response_text else '触发敏感词监控'
+            return_data['answer'] = response_text if response_text else '触发敏感词监控,请重置对话'
             self.__chat_history.append(return_data)
             if response_text is False:
                 return return_data, history_file_path, self.__chat_id
