@@ -356,7 +356,7 @@ def handle_search_list_1(search_type, and_list, or_list, not_list, start_time, e
             highlight['fields']['domain'] = {}
             highlight['fields']['author_all'] = {}
             highlight['fields']['source'] = {}
-        elif search_type ==1:
+        elif search_type == 1:
             should_list.append({"match": {
                 "display_name": {
                     "query": and_list[0]['content'],
@@ -412,7 +412,7 @@ def handle_search_list_1(search_type, and_list, or_list, not_list, start_time, e
             highlight['fields']['country_code'] = {}
             highlight['fields']['institution_type'] = {}
             highlight['fields']['domain'] = {}
-        else:
+        elif search_type == 3:
             should_list.append({"match": {
                 "display_name": {
                     "query": and_list[0]['content'],
@@ -423,17 +423,8 @@ def handle_search_list_1(search_type, and_list, or_list, not_list, start_time, e
                     "query": and_list[0]['content'],
                     "minimum_should_match": "75%"
                 }}})
-            should_list.append({"match": {
-                "level": {
-                    "query": and_list[0]['content'],
-                    "minimum_should_match": "75%"
-                }}})
             highlight['fields']['display_name'] = {}
             highlight['fields']['description'] = {}
-            highlight['fields']['level'] = {}
-        must_list.append({"query_string": {"query": and_list[0]['content'], "fields": ["*"],
-                                           "minimum_should_match": "75%"}})
-        highlight['fields']['*'] = {}
     else:
         for item in and_list:
             if item['select'] == "":
