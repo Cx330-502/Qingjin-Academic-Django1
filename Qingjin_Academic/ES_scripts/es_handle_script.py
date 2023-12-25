@@ -325,21 +325,127 @@ def handle_search_list_1(search_type, and_list, or_list, not_list, start_time, e
     must_not_list = []
     highlight = {"fields": {}}
     if len(and_list) + len(or_list) + len(not_list) == 1 and and_list[0]['select'] == "":
+        if search_type == 0:
+            should_list.append({"match": {
+                "title": {
+                    "query": and_list[0]['content'],
+                    "minimum_should_match": "75%"
+                }}})
+            should_list.append({"match": {
+                "abstract": {
+                    "query": and_list[0]['content'],
+                    "minimum_should_match": "75%"
+                }}})
+            should_list.append({"match": {
+                "domain": {
+                    "query": and_list[0]['content'],
+                    "minimum_should_match": "75%"
+                }}})
+            should_list.append({"match": {
+                "author_all": {
+                    "query": and_list[0]['content'],
+                    "minimum_should_match": "75%"
+                }}})
+            should_list.append({"match": {
+                "source": {
+                    "query": and_list[0]['content'],
+                    "minimum_should_match": "75%"
+                }}})
+            highlight['fields']['title'] = {}
+            highlight['fields']['abstract'] = {}
+            highlight['fields']['domain'] = {}
+            highlight['fields']['author_all'] = {}
+            highlight['fields']['source'] = {}
+        elif search_type ==1:
+            should_list.append({"match": {
+                "display_name": {
+                    "query": and_list[0]['content'],
+                    "minimum_should_match": "75%"
+                }}})
+            should_list.append({"match": {
+                "domain": {
+                    "query": and_list[0]['content'],
+                    "minimum_should_match": "75%"
+                }}})
+            should_list.append({"match": {
+                "institution": {
+                    "query": and_list[0]['content'],
+                    "minimum_should_match": "75%"
+                }}})
+            should_list.append({"match": {
+                "most_cited_work": {
+                    "query": and_list[0]['content'],
+                    "minimum_should_match": "75%"
+                }}})
+            highlight['fields']['display_name'] = {}
+            highlight['fields']['domain'] = {}
+            highlight['fields']['institution'] = {}
+            highlight['fields']['most_cited_work'] = {}
+        elif search_type == 2:
+            should_list.append({"match": {
+                "display_name": {
+                    "query": and_list[0]['content'],
+                    "minimum_should_match": "75%"
+                }}})
+            should_list.append({"match": {
+                "display_name_acronyms": {
+                    "query": and_list[0]['content'],
+                    "minimum_should_match": "75%"
+                }}})
+            should_list.append({"match": {
+                "country_code": {
+                    "query": and_list[0]['content'],
+                    "minimum_should_match": "75%"
+                }}})
+            should_list.append({"match": {
+                "institution_type": {
+                    "query": and_list[0]['content'],
+                    "minimum_should_match": "75%"
+                }}})
+            should_list.append({"match": {
+                "domain": {
+                    "query": and_list[0]['content'],
+                    "minimum_should_match": "75%"
+                }}})
+            highlight['fields']['display_name'] = {}
+            highlight['fields']['display_name_acronyms'] = {}
+            highlight['fields']['country_code'] = {}
+            highlight['fields']['institution_type'] = {}
+            highlight['fields']['domain'] = {}
+        else:
+            should_list.append({"match": {
+                "display_name": {
+                    "query": and_list[0]['content'],
+                    "minimum_should_match": "75%"
+                }}})
+            should_list.append({"match": {
+                "description": {
+                    "query": and_list[0]['content'],
+                    "minimum_should_match": "75%"
+                }}})
+            should_list.append({"match": {
+                "level": {
+                    "query": and_list[0]['content'],
+                    "minimum_should_match": "75%"
+                }}})
+            highlight['fields']['display_name'] = {}
+            highlight['fields']['description'] = {}
+            highlight['fields']['level'] = {}
         must_list.append({"query_string": {"query": and_list[0]['content'], "fields": ["*"],
-                                           "minimum_should_match": "70%"}})
+                                           "minimum_should_match": "75%"}})
         highlight['fields']['*'] = {}
     else:
         for item in and_list:
             if item['select'] == "":
                 must_list.append({"query_string": {"query": item['content'], "fields": ["*"],
-                                                   "minimum_should_match": "70%"}})
+                                                   }})
                 highlight['fields']['*'] = {}
             else:
                 if item['clear'] == 1:
                     must_list.append({"match": {
                         com_table[search_type][item['select']]: {
                             "query": item['content'],
-                            "minimum_should_match": "70%"
+                            "minimum_should_match": "75%"
                         }
                     }})
                 else:
@@ -347,7 +453,7 @@ def handle_search_list_1(search_type, and_list, or_list, not_list, start_time, e
                         com_table[search_type][item['select']]: {
                             "query": item['content'],
                             "fuzziness": "AUTO",
-                            "minimum_should_match": "70%"
+                            "minimum_should_match": "75%"
                         }
                     }})
                 highlight['fields'][com_table[search_type][item['select']]] = {}
@@ -355,26 +461,26 @@ def handle_search_list_1(search_type, and_list, or_list, not_list, start_time, e
             if item['clear'] == 1:
                 should_list.append({"match": {com_table[search_type][item['select']]: {
                     "query": item['content'],
-                    "minimum_should_match": "70%"
+                    "minimum_should_match": "75%"
                 }}})
             else:
                 should_list.append({"match": {com_table[search_type][item['select']]: {
                     "query": item['content'],
                     "fuzziness": "AUTO",
-                    "minimum_should_match": "70%"
+                    "minimum_should_match": "75%"
                 }}})
             highlight['fields'][com_table[search_type][item['select']]] = {}
         for item in not_list:
             if item['clear'] == 1:
                 must_not_list.append({"match": {com_table[search_type][item['select']]: {
                     "query": item['content'],
-                    "minimum_should_match": "70%"
+                    "minimum_should_match": "75%"
                 }}})
             else:
                 must_not_list.append({"match": {com_table[search_type][item['select']]: {
                     "query": item['content'],
                     "fuzziness": "AUTO",
-                    "minimum_should_match": "70%"
+                    "minimum_should_match": "75%"
                 }}})
             highlight['fields'][com_table[search_type][item['select']]] = {}
     if search_type == 0:
@@ -399,7 +505,7 @@ def handle_search_list_1(search_type, and_list, or_list, not_list, start_time, e
                                 "publication_date": temp
                             }
                         }
-                    ]
+                    ],
                 }
             },
             "highlight": highlight
@@ -416,6 +522,8 @@ def handle_search_list_1(search_type, and_list, or_list, not_list, start_time, e
             },
             "highlight": highlight
         }
+    if len(and_list) + len(or_list) + len(not_list) == 1 and and_list[0]['select'] == "":
+        search_body['query']['bool']['minimum_should_match'] = 1
     return search_body
 
 
