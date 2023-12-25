@@ -436,7 +436,7 @@ def handle_search_list_1(search_type, and_list, or_list, not_list, start_time, e
                     must_list.append({"match": {
                         com_table[search_type][item['select']]: {
                             "query": item['content'],
-                            "minimum_should_match": "75%"
+                            # "minimum_should_match": "75%"
                         }
                     }})
                 else:
@@ -444,7 +444,7 @@ def handle_search_list_1(search_type, and_list, or_list, not_list, start_time, e
                         com_table[search_type][item['select']]: {
                             "query": item['content'],
                             "fuzziness": "AUTO",
-                            "minimum_should_match": "75%"
+                            # "minimum_should_match": "75%"
                         }
                     }})
                 highlight['fields'][com_table[search_type][item['select']]] = {}
@@ -484,7 +484,8 @@ def handle_search_list_1(search_type, and_list, or_list, not_list, start_time, e
             temp["gte"] = start_time
         if end_time != 0:
             temp["lte"] = end_time
-        if len(and_list) + len(or_list) + len(not_list) == 1 and and_list[0]['select'] == "":
+        temp_len = len((re.sub(r'\s+', ' ', str(temp))).split(' '))
+        if len(and_list) + len(or_list) + len(not_list) == 1 and and_list[0]['select'] == "" and temp_len >= 3:
             search_body = {
                 "query": {
                     "bool": {
