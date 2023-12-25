@@ -292,7 +292,8 @@ com_table = [{
     'Main Author': 'author_main',
     'Main Domain': 'domain_main',
     'ID': 'id',
-    'Referenced Works': 'referenced_works'
+    'Referenced Works': 'referenced_works',
+    'corresponding_institution_ids': 'corresponding_institution_ids'
 }, {
     'Name': 'display_name',
     'Domain': 'domain',
