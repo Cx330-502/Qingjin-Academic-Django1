@@ -325,33 +325,57 @@ def handle_search_list_1(search_type, and_list, or_list, not_list, start_time, e
     must_not_list = []
     highlight = {"fields": {}}
     if len(and_list) + len(or_list) + len(not_list) == 1 and and_list[0]['select'] == "":
-        must_list.append({"query_string": {"query": and_list[0]['content'], "fields": ["*"]}})
+        must_list.append({"query_string": {"query": and_list[0]['content'], "fields": ["*"],
+                                           "minimum_should_match": "70%"}})
         highlight['fields']['*'] = {}
     else:
         for item in and_list:
             if item['select'] == "":
-                must_list.append({"query_string": {"query": item['content'], "fields": ["*"]}})
+                must_list.append({"query_string": {"query": item['content'], "fields": ["*"],
+                                                   "minimum_should_match": "70%"}})
                 highlight['fields']['*'] = {}
             else:
                 if item['clear'] == 1:
-                    must_list.append({"match": {com_table[search_type][item['select']]: item['content']}})
+                    must_list.append({"match": {
+                        com_table[search_type][item['select']]: {
+                            "query": item['content'],
+                            "minimum_should_match": "70%"
+                        }
+                    }})
                 else:
-                    must_list.append({"match": {com_table[search_type][item['select']]: {"query": item['content'],
-                                                                                         "fuzziness": "AUTO"}}})
+                    must_list.append({"match": {
+                        com_table[search_type][item['select']]: {
+                            "query": item['content'],
+                            "fuzziness": "AUTO",
+                            "minimum_should_match": "70%"
+                        }
+                    }})
                 highlight['fields'][com_table[search_type][item['select']]] = {}
         for item in or_list:
             if item['clear'] == 1:
-                should_list.append({"match": {com_table[search_type][item['select']]: item['content']}})
+                should_list.append({"match": {com_table[search_type][item['select']]: {
+                    "query": item['content'],
+                    "minimum_should_match": "70%"
+                }}})
             else:
-                should_list.append({"match": {com_table[search_type][item['select']]: {"query": item['content'],
-                                                                                       "fuzziness": "AUTO"}}})
+                should_list.append({"match": {com_table[search_type][item['select']]: {
+                    "query": item['content'],
+                    "fuzziness": "AUTO",
+                    "minimum_should_match": "70%"
+                }}})
             highlight['fields'][com_table[search_type][item['select']]] = {}
         for item in not_list:
             if item['clear'] == 1:
-                must_not_list.append({"match": {com_table[search_type][item['select']]: item['content']}})
+                must_not_list.append({"match": {com_table[search_type][item['select']]: {
+                    "query": item['content'],
+                    "minimum_should_match": "70%"
+                }}})
             else:
-                must_not_list.append({"match": {com_table[search_type][item['select']]: {"query": item['content'],
-                                                                                         "fuzziness": "AUTO"}}})
+                must_not_list.append({"match": {com_table[search_type][item['select']]: {
+                    "query": item['content'],
+                    "fuzziness": "AUTO",
+                    "minimum_should_match": "70%"
+                }}})
             highlight['fields'][com_table[search_type][item['select']]] = {}
     if search_type == 0:
         paper_deletes = Paper_delete.objects.all()
