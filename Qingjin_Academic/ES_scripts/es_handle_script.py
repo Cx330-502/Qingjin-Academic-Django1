@@ -484,37 +484,71 @@ def handle_search_list_1(search_type, and_list, or_list, not_list, start_time, e
             temp["gte"] = start_time
         if end_time != 0:
             temp["lte"] = end_time
-        search_body = {
-            "query": {
-                "bool": {
-                    "must": must_list,
-                    "should": should_list,
-                    "must_not": must_not_list,
-                    "filter": [
-                        {
-                            "range": {
-                                "publication_date": temp
+        if len(and_list) + len(or_list) + len(not_list) == 1 and and_list[0]['select'] == "":
+            search_body = {
+                "query": {
+                    "bool": {
+                        "must": must_list,
+                        "should": should_list,
+                        "minimum_should_match": "3<75%",
+                        "must_not": must_not_list,
+                        "filter": [
+                            {
+                                "range": {
+                                    "publication_date": temp
+                                }
                             }
-                        }
-                    ],
-                }
-            },
-            "highlight": highlight
-        }
+                        ],
+                    }
+                },
+                "highlight": highlight
+            }
+        else:
+            search_body = {
+                "query": {
+                    "bool": {
+                        "must": must_list,
+                        "should": should_list,
+                        "must_not": must_not_list,
+                        "filter": [
+                            {
+                                "range": {
+                                    "publication_date": temp
+                                }
+                            }
+                        ],
+                    }
+                },
+                "highlight": highlight
+            }
     else:
-        search_body = {
-            "query": {
-                "bool": {
-                    "must": must_list,
-                    "should": should_list,
-                    "must_not": must_not_list,
-                    "filter": []
-                }
-            },
-            "highlight": highlight
-        }
-    if len(and_list) + len(or_list) + len(not_list) == 1 and and_list[0]['select'] == "":
-        search_body['query']['bool']['minimum_should_match'] = 1
+        if len(and_list) + len(or_list) + len(not_list) == 1 and and_list[0]['select'] == "":
+            search_body = {
+                "query": {
+                    "bool": {
+                        "must": must_list,
+                        "should": should_list,
+                        "minimum_should_match": "3<75%",
+                        "must_not": must_not_list,
+                        "filter": [],
+                    }
+                },
+                "highlight": highlight
+            }
+        else:
+            search_body = {
+                "query": {
+                    "bool": {
+                        "must": must_list,
+                        "should": should_list,
+                        "must_not": must_not_list,
+                        "filter": []
+                    }
+                },
+                "highlight": highlight
+            }
+
+
     return search_body
 
 
