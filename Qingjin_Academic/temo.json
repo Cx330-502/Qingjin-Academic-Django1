@@ -1,0 +1,157 @@
+{
+                "title": "Generalized Gradient Approximation Made Simple",
+                "id": "1981368803",
+                "abstract": "exchange-correlation energy improve upon local spin density (LSD) description of atoms, molecules, <em>and</em>",
+                "cited_count": 147853,
+                "domain": [
+                    {
+                        "name": "Simple (philosophy)",
+                        "id": "2780586882",
+                        "level": "2",
+                        "activity_level": "0.82514447"
+                    },
+                    {
+                        "name": "Scaling",
+                        "id": "99844830",
+                        "level": "2",
+                        "activity_level": "0.6654375"
+                    },
+                    {
+                        "name": "Statistical physics",
+                        "id": "121864883",
+                        "level": "1",
+                        "activity_level": "0.6102829"
+                    },
+                    {
+                        "name": "Linear scale",
+                        "id": "170122806",
+                        "level": "2",
+                        "activity_level": "0.55408573"
+                    },
+                    {
+                        "name": "Physics",
+                        "id": "121332964",
+                        "level": "0",
+                        "activity_level": "0.49338427"
+                    },
+                    {
+                        "name": "Spin density",
+                        "id": "3018272316",
+                        "level": "2",
+                        "activity_level": "0.48516518"
+                    },
+                    {
+                        "name": "Spin (aerodynamics)",
+                        "id": "42704618",
+                        "level": "2",
+                        "activity_level": "0.43200958"
+                    },
+                    {
+                        "name": "Local-density approximation",
+                        "id": "9249130",
+                        "level": "3",
+                        "activity_level": "0.43061215"
+                    },
+                    {
+                        "name": "Kohn–Sham equations",
+                        "id": "9059619",
+                        "level": "3",
+                        "activity_level": "0.42569804"
+                    },
+                    {
+                        "name": "Quantum mechanics",
+                        "id": "62520636",
+                        "level": "1",
+                        "activity_level": "0.35535908"
+                    },
+                    {
+                        "name": "Electronic structure",
+                        "id": "86025842",
+                        "level": "2",
+                        "activity_level": "0.31023443"
+                    },
+                    {
+                        "name": "Density functional theory",
+                        "id": "152365726",
+                        "level": "2",
+                        "activity_level": "0.29765612"
+                    },
+                    {
+                        "name": "Condensed matter physics",
+                        "id": "26873012",
+                        "level": "1",
+                        "activity_level": "0.2565789"
+                    },
+                    {
+                        "name": "Mathematics",
+                        "id": "33923547",
+                        "level": "0",
+                        "activity_level": "0.20775574"
+                    },
+                    {
+                        "name": "Thermodynamics",
+                        "id": "97355855",
+                        "level": "1",
+                        "activity_level": "0.1649805"
+                    },
+                    {
+                        "name": "Geometry",
+                        "id": "2524010",
+                        "level": "1",
+                        "activity_level": "0.11068845"
+                    },
+                    {
+                        "name": "Geodesy",
+                        "id": "13280743",
+                        "level": "1",
+                        "activity_level": "0.0"
+                    },
+                    {
+                        "name": "Geography",
+                        "id": "205649164",
+                        "level": "0",
+                        "activity_level": "0.0"
+                    },
+                    {
+                        "name": "Philosophy",
+                        "id": "138885662",
+                        "level": "0",
+                        "activity_level": "0.0"
+                    },
+                    {
+                        "name": "Epistemology",
+                        "id": "111472728",
+                        "level": "1",
+                        "activity_level": "0.0"
+                    }
+                ],
+                "author_all": [
+                    {
+                        "name": "John P. Perdew",
+                        "id": "5014987686",
+                        "claimed": false
+                    },
+                    {
+                        "name": "Kieron Burke",
+                        "id": "5082307304",
+                        "claimed": false
+                    },
+                    {
+                        "name": "Matthias Ernzerhof",
+                        "id": "5053648717",
+                        "claimed": false
+                    }
+                ],
+                "pdf_url": null,
+                "landing_page_url": "https://doi.org/10.1103/physrevlett.77.3865",
+                "source": [
+                    {
+                        "name": "Physical Review Letters",
+                        "type": "journal",
+                        "id": "4310320261"
+                    }
+                ],
+                "publication_date": "1996-10-28",
+                "type_num": 1110,
+                "is_star": false
+            },
