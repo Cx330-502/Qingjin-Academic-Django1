@@ -522,31 +522,17 @@ def handle_search_list_1(search_type, and_list, or_list, not_list, start_time, e
                 "highlight": highlight
             }
     else:
-        if len(and_list) + len(or_list) + len(not_list) == 1 and and_list[0]['select'] == "":
-            search_body = {
-                "query": {
-                    "bool": {
-                        "must": must_list,
-                        "should": should_list,
-                        "minimum_should_match": "3<75%",
-                        "must_not": must_not_list,
-                        "filter": [],
-                    }
-                },
-                "highlight": highlight
-            }
-        else:
-            search_body = {
-                "query": {
-                    "bool": {
-                        "must": must_list,
-                        "should": should_list,
-                        "must_not": must_not_list,
-                        "filter": []
-                    }
-                },
-                "highlight": highlight
-            }
+        search_body = {
+            "query": {
+                "bool": {
+                    "must": must_list,
+                    "should": should_list,
+                    "must_not": must_not_list,
+                    "filter": []
+                }
+            },
+            "highlight": highlight
+        }
 
 
     return search_body
