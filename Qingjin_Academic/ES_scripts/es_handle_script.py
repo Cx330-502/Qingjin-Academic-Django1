@@ -485,7 +485,7 @@ def handle_search_list_1(search_type, and_list, or_list, not_list, start_time, e
         if end_time != 0:
             temp["lte"] = end_time
         temp_len = len((re.sub(r'\s+', ' ', str(temp))).split(' '))
-        if len(and_list) + len(or_list) + len(not_list) == 1 and and_list[0]['select'] == "" and temp_len >= 3:
+        if len(and_list) + len(or_list) + len(not_list) == 1 and and_list[0]['select'] == "" and temp_len >= 2:
             search_body = {
                 "query": {
                     "bool": {
