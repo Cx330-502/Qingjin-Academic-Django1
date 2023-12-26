@@ -49,7 +49,8 @@ def get_affairs(request):
             }
             result = es_search.body_search("works", search_body)
             if len(result["hits"]["hits"]) == 0:
-                return JsonResponse({'errno': 1003, 'errmsg': '论文不存在'})
+                # return JsonResponse({'errno': 1003, 'errmsg': '论文不存在'})
+                affair.report.delete()
             paper = result["hits"]["hits"][0]["_source"]["title"]
             data = {
                 "affair_id": affair.id,
