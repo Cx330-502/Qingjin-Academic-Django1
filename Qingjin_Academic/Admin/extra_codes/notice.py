@@ -7,7 +7,7 @@ from django.template import loader
 data = {
     'sender': "olafknowledgegraph@163.com",  # 发送者邮箱，自己用可写死
     'password': "MUVNLBGHOGERATMW",  # 在开启SMTP服务后，可以生成授权码，此处为授权码
-    'subject': "青衿学术事务反馈",  # 邮件主题名，没有违规文字都行
+    'subject': "AgileScholar事务反馈",  # 邮件主题名，没有违规文字都行
 }
 
 
