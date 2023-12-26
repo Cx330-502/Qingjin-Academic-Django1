@@ -354,8 +354,8 @@ def handle_claim(request):
         user.claimed_scholar = claim.claimed_scholar
         user.save()
         scholar_id = claim.claimed_scholar.es_id
-        claim.delete()
         claim_email = claim.claim_email
+        claim.delete()
         domain_evolve(claim_email, claim_email_special, scholar_id)
     return JsonResponse({'errno': 0, 'errmsg': '处理成功'})
 
