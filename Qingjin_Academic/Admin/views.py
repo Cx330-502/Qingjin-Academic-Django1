@@ -289,7 +289,7 @@ def handle_report(request):
                               reason=handle_reason).send_email(1)
         paper_delete = Paper_delete(es_id=affair.report.paper_id)
         paper_delete.save()
-        affair.delete()
+        affair.report.delete()
         stars = Star.objects.filter(paper_id=paper_delete.es_id)
         for star in stars:
             star.folder.num -= 1
